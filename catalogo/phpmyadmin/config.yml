@@ -1,1 +1,7 @@
-
+nombre: phpmyadmin
+descripcion: Interfaz web para administrar bases de datos MariaDB.
+puerto_por_defecto: 8081
+icono: https://www.phpmyadmin.net/static/images/logo.png
+volumenes: []
+dependencias:
+  - mariadb
