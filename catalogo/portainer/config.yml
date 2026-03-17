@@ -1,1 +1,7 @@
-
+nombre: portainer
+descripcion: Interfaz web para administrar contenedores Docker.
+puerto_por_defecto: 9000
+icono: https://portainer.io/images/logo.svg
+volumenes:
+  - portainer
+dependencias: []
