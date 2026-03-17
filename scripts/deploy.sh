@@ -16,7 +16,7 @@ fi
 # ============================
 BASE_DIR="/srv/$EMPRESA"
 SERVICIO_DIR="$BASE_DIR/$SERVICIO"
-CATALOGO_DIR="./catalogo/$SERVICIO"
+CATALOGO_DIR="../catalogo/$SERVICIO"
 
 mkdir -p "$SERVICIO_DIR"
 
