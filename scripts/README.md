@@ -1,5 +1,8 @@
 # Scripts - BASH
 Esta carpeta contiene el **motor de despliegue** de la plataforma. Aquí se gestionan las empresas, los servicios, los puertos y la generación de archivos a partir del catálogo.
+En cada git pull hay que volver a dar permisos:
+chmod +x scripts/*.sh
+chmod -R +x scripts/funciones/
 
 ## Contenido
 
