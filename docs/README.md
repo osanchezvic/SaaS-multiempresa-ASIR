@@ -30,6 +30,7 @@ Este proyecto forma parte del Trabajo de Fin de Ciclo de ASIR.
 - **Panel del Cliente**: Dashy
 - **Automatización**: Scripts BASH
 - **Monitorización**: Prometheus + Grafana
+  
 - **ESTRUCTURA POR EMPRESA**
 -   Redes Docker independientes
 -   Volúmenes separados
