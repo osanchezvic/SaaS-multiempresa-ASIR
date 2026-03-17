@@ -34,14 +34,15 @@ ADMIN_PASSWORD=$(openssl rand -hex 8)
 # 4. Sustituir variables en docker-compose.tpl
 # ============================
 sed \
-    -e "s/{{EMPRESA}}/$EMPRESA/g" \
-    -e "s/{{PUERTO}}/$PUERTO/g" \
-    -e "s/{{RUTA_DATOS}}/$BASE_DIR/g" \
-    -e "s/{{DB_NAME}}/$DB_NAME/g" \
-    -e "s/{{DB_USER}}/$DB_USER/g" \
-    -e "s/{{DB_PASSWORD}}/$DB_PASSWORD/g" \
+    -e "s|{{EMPRESA}}|$EMPRESA|g" \
+    -e "s|{{PUERTO}}|$PUERTO|g" \
+    -e "s|{{RUTA_DATOS}}|$BASE_DIR|g" \
+    -e "s|{{DB_NAME}}|$DB_NAME|g" \
+    -e "s|{{DB_USER}}|$DB_USER|g" \
+    -e "s|{{DB_PASSWORD}}|$DB_PASSWORD|g" \
     "$CATALOGO_DIR/docker-compose.tpl" \
     > "$SERVICIO_DIR/docker-compose.yml"
+
 
 # ============================
 # 5. Sustituir variables en env.tpl
