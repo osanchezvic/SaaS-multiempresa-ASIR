@@ -31,7 +31,7 @@ Este proyecto forma parte del Trabajo de Fin de Ciclo de ASIR.
 - **Automatización**: Scripts BASH
 - **Monitorización**: Prometheus + Grafana
   
-- **ESTRUCTURA POR EMPRESA**
+**ESTRUCTURA POR EMPRESA**
 -   Redes Docker independientes
 -   Volúmenes separados
 -   Subdominios por servicio
