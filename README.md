@@ -34,3 +34,14 @@ Este proyecto forma parte del Trabajo de Fin de Ciclo de ASIR.
 -   Redes Docker independientes
 -   Volúmenes separados
 -   Subdominios por servicio
+
+---
+
+## Licencia
+Este proyecto está bajo licencia **MIT**, lo que permite su uso, copia y modificación con atribución.
+
+---
+
+## Autor
+**Óscar Sánchez Victoria**
+*osanchezvic@gmail.com*
