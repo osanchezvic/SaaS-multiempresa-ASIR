@@ -1,1 +1,7 @@
-
+nombre: vaultwarden
+descripcion: Gestor de contraseñas seguro y ligero compatible con Bitwarden.
+puerto_por_defecto: 80
+icono: https://raw.githubusercontent.com/dani-garcia/vaultwarden/main/resources/vaultwarden-icon.png
+volumenes:
+  - vaultwarden
+dependencias: []
