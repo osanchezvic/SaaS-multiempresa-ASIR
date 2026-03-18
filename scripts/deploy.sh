@@ -62,7 +62,8 @@ docker compose up -d
 
 echo "================================================"
 echo "DESPLIEGE COMPLETADO"
-echo "URL: http://tu-ip:$PUERTO"
+IP=$(hostname -I | awk '{print $1}')
+echo "URL: http://$IP:$PUERTO"
 echo "Empresa: $EMPRESA | Servicio: $SERVICIO"
 echo "Credenciales DB: $DB_USER / $DB_PASSWORD"
 echo "Credenciales Admin: $ADMIN_USER / $ADMIN_PASSWORD"
