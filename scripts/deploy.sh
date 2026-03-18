@@ -4,6 +4,7 @@
 EMPRESA=$1
 SERVICIO=$2
 
+# Si alguno de los parámetros está vacio exit
 if [ -z "$EMPRESA" ] || [ -z "$SERVICIO" ]; then
     echo "Uso: ./scripts/deploy.sh <empresa> <servicio>"
     exit 1
@@ -35,8 +36,8 @@ DB_PASSWORD=$(openssl rand -hex 8)
 ADMIN_USER="admin"
 ADMIN_PASSWORD=$(openssl rand -hex 8)
 
-# 4 y 5. Sustitución con sed (Corregido y seguro)
-# Usamos '|' para evitar conflictos con barras de rutas
+# 4. Se utiliza el comando 'sed' para buscar y cambiar las marcas de los .tpl
+# Hay que utilizar '|' para evitar conflictos con barras de rutas !!!
 sed -e "s|{{EMPRESA}}|$EMPRESA|g" \
     -e "s|{{PUERTO}}|$PUERTO|g" \
     -e "s|{{RUTA_DATOS}}|$BASE_DIR|g" \
@@ -52,11 +53,11 @@ sed -e "s|{{DB_NAME}}|$DB_NAME|g" \
     -e "s|{{ADMIN_PASSWORD}}|$ADMIN_PASSWORD|g" \
     "$CATALOGO_DIR/env.tpl" > "$SERVICIO_DIR/.env"
 
-# 6. Red de Docker
+# 5. Red de Docker
 docker network inspect "${EMPRESA}_net" >/dev/null 2>&1 || \
     docker network create "${EMPRESA}_net"
 
-# 7. Despliegue
+# 6. Despliegue
 cd "$SERVICIO_DIR" || exit
 docker compose up -d
 
