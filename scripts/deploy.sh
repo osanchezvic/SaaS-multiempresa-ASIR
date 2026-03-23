@@ -4,6 +4,11 @@
 EMPRESA=$1
 SERVICIO=$2
 
+if [ $# -lt 3 ]; then
+    echo "Uso: ./scripts/deploy.sh <empresa> <servicio>"
+    exit 1
+fi
+
 # Si alguno de los parámetros está vacio exit
 if [ -z "$EMPRESA" ] || [ -z "$SERVICIO" ]; then
     echo "Uso: ./scripts/deploy.sh <empresa> <servicio>"
