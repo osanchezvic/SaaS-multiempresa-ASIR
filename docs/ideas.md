@@ -4,3 +4,4 @@
 - prestashop ? 
 - authelia
 - AUTH MULTIFACTOR | api google ?
+- VaultWarden
