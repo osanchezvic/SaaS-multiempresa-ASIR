@@ -74,15 +74,16 @@ fi
 # PREPARAR DIRECTORIO Y CREAR BACKUP
 # =====================================================
 
-mkdir -p "$SERVICIO_DIR"
-log_debug "Directorio creado: $SERVICIO_DIR"
-
-# Crear backup previo (si existía y algo falló antes)
-if [ -d "$SERVICIO_DIR" ] && [ -f "$SERVICIO_DIR/docker-compose.yml" ]; then
+# Backup si quedaron restos de un deploy anterior fallido
+if [ -d "$SERVICIO_DIR" ] && [ -n "$(ls -A "$SERVICIO_DIR" 2>/dev/null)" ]; then
+    log_warn "Directorio con restos encontrado: $SERVICIO_DIR"
     if ! crear_backup "$EMPRESA" "$SERVICIO" "$SERVICIO_DIR"; then
         log_warn "No se pudo crear backup previo"
     fi
 fi
+
+mkdir -p "$SERVICIO_DIR"
+log_debug "Directorio listo: $SERVICIO_DIR"
 
 # =====================================================
 # GENERAR CREDENCIALES Y VALORES
