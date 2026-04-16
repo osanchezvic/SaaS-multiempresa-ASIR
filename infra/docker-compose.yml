@@ -110,11 +110,11 @@ services:
       retries: 5
       start_period: 30s
     environment:
-      DB_MYSQL_HOST: "db"
-      DB_MYSQL_PORT: 3306
-      DB_MYSQL_USER: "npm"
-      DB_MYSQL_PASSWORD: "npm123"
-      DB_MYSQL_NAME: "npm"
+      DB_MYSQL_HOST: ${NPM_DB_HOST:-db}
+      DB_MYSQL_PORT: ${NPM_DB_PORT:-3306}
+      DB_MYSQL_USER: ${NPM_DB_USER:-npm}
+      DB_MYSQL_PASSWORD: ${NPM_DB_PASSWORD:-npm123}
+      DB_MYSQL_NAME: ${NPM_DB_NAME:-npm}
     volumes:
       - ./proxy/data:/data
       - ./proxy/letsencrypt:/etc/letsencrypt
@@ -128,10 +128,10 @@ services:
     container_name: npm_db
     restart: unless-stopped
     environment:
-      MYSQL_ROOT_PASSWORD: 'npm123'
-      MYSQL_DATABASE: 'npm'
-      MYSQL_USER: 'npm'
-      MYSQL_PASSWORD: 'npm123'
+      MYSQL_ROOT_PASSWORD: ${NPM_DB_ROOT_PASSWORD:-npm123}
+      MYSQL_DATABASE: ${NPM_DB_NAME:-npm}
+      MYSQL_USER: ${NPM_DB_USER:-npm}
+      MYSQL_PASSWORD: ${NPM_DB_PASSWORD:-npm123}
     volumes:
       - ./proxy/mysql:/var/lib/mysql
     networks:
