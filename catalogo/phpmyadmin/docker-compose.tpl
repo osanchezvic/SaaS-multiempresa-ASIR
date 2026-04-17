@@ -1,7 +1,7 @@
 services:
   phpmyadmin:
     container_name: {{EMPRESA}}_phpmyadmin
-    image: phpmyadmin/phpmyadmin:latest
+    image: phpmyadmin/phpmyadmin:5.2.1
     restart: always
     environment:
       - PMA_HOST={{EMPRESA}}_mariadb

@@ -1,7 +1,7 @@
 services:
   uptime-kuma:
     container_name: {{EMPRESA}}_uptime_kuma
-    image: louislam/uptime-kuma:latest
+    image: louislam/uptime-kuma:1.23.1
     restart: always
     volumes:
       - {{RUTA_DATOS}}/uptime-kuma:/app/data

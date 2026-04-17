@@ -1,7 +1,7 @@
 services:
   prometheus:
     container_name: {{EMPRESA}}_prometheus
-    image: prom/prometheus:latest
+    image: prom/prometheus:v2.47.2
     restart: always
     volumes:
       - {{RUTA_DATOS}}/prometheus:/prometheus

@@ -1,6 +1,6 @@
 services:
   {{EMPRESA}}_wordpress:
-    image: wordpress:latest
+    image: wordpress:6.4.2
     container_name: {{EMPRESA}}_wordpress
     restart: always
     depends_on:

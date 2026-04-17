@@ -57,6 +57,15 @@ La relación de dependencias se define en los archivos `config.yml` dentro de `c
 - **Directorio de Datos:** Definido por la variable `DATA_DIR` en `scripts/config.env` (por defecto: `/srv`).
 - **Gestión de Puertos:** Rango configurable mediante `PUERTO_MIN` y `PUERTO_MAX` en `scripts/config.env`.
 
+## Seguridad
+
+- **Gestión de Secretos:** El sistema utiliza variables de entorno para la configuración sensible. Asegúrese de configurar las siguientes variables antes de desplegar:
+  - `GRAFANA_ADMIN_PASSWORD`
+  - `NPM_DB_PASSWORD`
+  - `NPM_DB_ROOT_PASSWORD`
+  
+  Consulte `scripts/config.env` para más detalles sobre las configuraciones disponibles.
+
 ## Requisitos
 
 - Docker (versión 20+)

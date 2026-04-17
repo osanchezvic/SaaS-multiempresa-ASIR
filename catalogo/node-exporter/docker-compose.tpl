@@ -1,7 +1,7 @@
 services:
   node_exporter:
     container_name: {{EMPRESA}}_node_exporter
-    image: prom/node-exporter:latest
+    image: prom/node-exporter:v1.6.1
     restart: always
     command:
       - '--path.rootfs=/host'

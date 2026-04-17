@@ -1,7 +1,7 @@
 services:
   nginx:
     container_name: {{EMPRESA}}_nginx
-    image: nginx:latest
+    image: nginx:1.25.3
     restart: always
     volumes:
       - {{RUTA_DATOS}}/nginx/html:/usr/share/nginx/html:ro

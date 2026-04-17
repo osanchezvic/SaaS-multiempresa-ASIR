@@ -1,7 +1,7 @@
 services:
   wireguard:
     container_name: {{EMPRESA}}_wireguard
-    image: linuxserver/wireguard:latest
+    image: linuxserver/wireguard:1.0.20231011
     restart: always
     cap_add:
       - NET_ADMIN

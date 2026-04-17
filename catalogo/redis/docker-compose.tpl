@@ -1,7 +1,7 @@
 services:
   redis:
     container_name: {{EMPRESA}}_redis
-    image: redis:latest
+    image: redis:7.2.3
     restart: always
     command: ["redis-server", "--requirepass", "{{REDIS_PASSWORD}}"]
     volumes:

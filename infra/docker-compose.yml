@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   portainer:
-    image: portainer/portainer-ce:latest
+    image: portainer/portainer-ce:2.19.4
     container_name: portainer_global
     restart: unless-stopped
     ports:
@@ -21,7 +21,7 @@ services:
       - infra_net
 
   node-exporter:
-    image: prom/node-exporter:latest
+    image: prom/node-exporter:v1.6.1
     container_name: node_exporter_global
     restart: unless-stopped
     ports:
@@ -45,7 +45,7 @@ services:
       - infra_net
 
   prometheus:
-    image: prom/prometheus:latest
+    image: prom/prometheus:v2.47.2
     container_name: prometheus_global
     restart: unless-stopped
     ports:
@@ -70,7 +70,7 @@ services:
       - infra_net
 
   grafana:
-    image: grafana/grafana:latest
+    image: grafana/grafana:10.2.2
     container_name: grafana_global
     restart: unless-stopped
     ports:
@@ -83,7 +83,7 @@ services:
       start_period: 30s
     environment:
       - GF_SECURITY_ADMIN_USER=${GRAFANA_ADMIN_USER:-admin}
-      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD:-admin123}
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD}
       - GF_USERS_ALLOW_SIGN_UP=false
 
 
@@ -96,7 +96,7 @@ services:
       - infra_net
 
   nginx-proxy-manager:
-    image: "jc21/nginx-proxy-manager:latest"
+    image: "jc21/nginx-proxy-manager:2.11.2"
     container_name: nginx_proxy_manager
     restart: unless-stopped
     ports:
@@ -113,7 +113,7 @@ services:
       DB_MYSQL_HOST: ${NPM_DB_HOST:-db}
       DB_MYSQL_PORT: ${NPM_DB_PORT:-3306}
       DB_MYSQL_USER: ${NPM_DB_USER:-npm}
-      DB_MYSQL_PASSWORD: ${NPM_DB_PASSWORD:-npm123}
+      DB_MYSQL_PASSWORD: ${NPM_DB_PASSWORD}
       DB_MYSQL_NAME: ${NPM_DB_NAME:-npm}
     volumes:
       - ./proxy/data:/data
@@ -128,17 +128,17 @@ services:
     container_name: npm_db
     restart: unless-stopped
     environment:
-      MYSQL_ROOT_PASSWORD: ${NPM_DB_ROOT_PASSWORD:-npm123}
+      MYSQL_ROOT_PASSWORD: ${NPM_DB_ROOT_PASSWORD}
       MYSQL_DATABASE: ${NPM_DB_NAME:-npm}
       MYSQL_USER: ${NPM_DB_USER:-npm}
-      MYSQL_PASSWORD: ${NPM_DB_PASSWORD:-npm123}
+      MYSQL_PASSWORD: ${NPM_DB_PASSWORD}
     volumes:
       - ./proxy/mysql:/var/lib/mysql
     networks:
       - infra_net
 
   watchtower:
-    image: containrrr/watchtower:latest
+    image: containrrr/watchtower:1.6.0
     container_name: watchtower_global
     restart: unless-stopped
     healthcheck:
@@ -153,7 +153,7 @@ services:
       - infra_net
 
   fail2ban:
-    image: crazymax/fail2ban:latest
+    image: crazymax/fail2ban:1.0.2
     container_name: fail2ban_global
     restart: unless-stopped
     network_mode: host

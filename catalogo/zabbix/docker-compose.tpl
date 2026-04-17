@@ -1,7 +1,7 @@
 services:
   zabbix:
     container_name: {{EMPRESA}}_zabbix
-    image: zabbix/zabbix-appliance:latest
+    image: zabbix/zabbix-appliance:6.4.9
     restart: always
     environment:
       - ZBX_SERVER_NAME={{EMPRESA}}_zabbix

@@ -1,7 +1,7 @@
 services:
   vaultwarden:
     container_name: {{EMPRESA}}_vaultwarden
-    image: vaultwarden/server:latest
+    image: vaultwarden/server:1.30.0
     restart: always
     environment:
       - ADMIN_TOKEN={{ADMIN_TOKEN}}
