@@ -114,6 +114,18 @@ validar_pre_deploy() {
     
     return 0
 }
+# Validar compose template
+validar_compose_template() {
+    local empresa="$1"
+    local servicio="$2"
+    local compose_file="$DATA_DIR/$empresa/$servicio/docker-compose.yml"
+    
+    if [ -f "$compose_file" ]; then
+        docker compose -f "$compose_file" config -q
+        return $?
+    fi
+    return 1
+}
 
 # Post-validaciones después del deploy
 validar_post_deploy() {
@@ -147,5 +159,9 @@ validar_post_deploy() {
     echo_error "Timeout esperando contenedor"
     return 1
 }
+
+# Exportar funciones
+export -f validar_servicio obtener_dependencias validar_dependencias_auto validar_pre_deploy validar_post_deploy validar_compose_template validar_env_template
+
 
 
