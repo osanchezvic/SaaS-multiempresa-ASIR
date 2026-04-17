@@ -99,10 +99,60 @@ mkdir -p "$SERVICIO_DIR"
 log_debug "Directorio listo: $SERVICIO_DIR"
 
 # =====================================================
+# FUNCIÓN: CARGAR O GENERAR CREDENCIALES
+# =====================================================
+
+cargar_o_generar_credenciales() {
+    local empresa="$1"
+    local servicio="$2"
+    local cred_file="$CREDENTIALS_DIR/${empresa}.${servicio}"
+    
+    if [ -f "$cred_file" ]; then
+        log_info "Cargando credenciales existentes: $cred_file"
+        local json=$(cat "$cred_file")
+        DB_NAME=$(echo "$json" | jq -r .db_name)
+        DB_USER=$(echo "$json" | jq -r .db_user)
+        DB_PASSWORD=$(echo "$json" | jq -r .db_password)
+        DB_ROOT_PASSWORD=$(echo "$json" | jq -r .db_root_password)
+        ADMIN_USER=$(echo "$json" | jq -r .admin_user)
+        ADMIN_PASSWORD=$(echo "$json" | jq -r .admin_password)
+        JWT_SECRET=$(echo "$json" | jq -r .jwt_secret)
+        return 0
+    fi
+    
+    # Si es un servicio con dependencia, buscar credenciales de la BD
+    # (simplificación: si existe credenciales de mariadb, usarlas)
+    local db_cred_file="$CREDENTIALS_DIR/${empresa}.mariadb"
+    if [ -f "$db_cred_file" ]; then
+        log_info "Usando credenciales de base de datos existente"
+        local json=$(cat "$db_cred_file")
+        DB_NAME=$(echo "$json" | jq -r .db_name)
+        DB_USER=$(echo "$json" | jq -r .db_user)
+        DB_PASSWORD=$(echo "$json" | jq -r .db_password)
+        DB_ROOT_PASSWORD=$(echo "$json" | jq -r .db_root_password)
+        # Mantener otros valores únicos del servicio
+        ADMIN_USER="admin"
+        ADMIN_PASSWORD=$(generar_password 16)
+        JWT_SECRET=$(generar_token 32)
+        return 0
+    fi
+
+    # Generar nuevas
+    log_info "Generando nuevas credenciales..."
+    DB_NAME="${EMPRESA}_db"
+    DB_USER="${EMPRESA}_user"
+    DB_PASSWORD=$(generar_password 16)
+    DB_ROOT_PASSWORD=$(generar_password 16)
+    ADMIN_USER="admin"
+    ADMIN_PASSWORD=$(generar_password 16)
+    JWT_SECRET=$(generar_token 32)
+}
+
+# =====================================================
 # GENERAR CREDENCIALES Y VALORES
 # =====================================================
 
-log_info "Generando credenciales..."
+log_info "Configurando credenciales..."
 
 PUERTO=$(asignar_puerto "$EMPRESA" "$SERVICIO" "dev")
 if [ -z "$PUERTO" ]; then
@@ -110,13 +160,7 @@ if [ -z "$PUERTO" ]; then
     exit 1
 fi
 
-DB_NAME="${EMPRESA}_db"
-DB_USER="${EMPRESA}_user"
-DB_PASSWORD=$(generar_password 16)
-DB_ROOT_PASSWORD=$(generar_password 16)
-ADMIN_USER="admin"
-ADMIN_PASSWORD=$(generar_password 16)
-JWT_SECRET=$(generar_token 32)
+cargar_o_generar_credenciales "$EMPRESA" "$SERVICIO"
 
 # =====================================================
 # GUARDAR CREDENCIALES
