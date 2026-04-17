@@ -160,6 +160,15 @@ validar_post_deploy() {
     return 1
 }
 
+# Validar env template
+validar_env_template() {
+    local empresa="$1"
+    local servicio="$2"
+    local env_file="$DATA_DIR/$empresa/$servicio/.env"
+    
+    [ -f "$env_file" ]
+}
+
 # Exportar funciones
 export -f validar_servicio obtener_dependencias validar_dependencias_auto validar_pre_deploy validar_post_deploy validar_compose_template validar_env_template
 
