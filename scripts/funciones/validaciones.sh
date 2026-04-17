@@ -131,7 +131,7 @@ validar_compose_template() {
 validar_post_deploy() {
     local empresa="$1"
     local servicio="$2"
-    local container="${empresa}_${servicio}_1"
+    local container="${empresa}_${servicio}"
     
     echo_info "Validaciones post-deploy en curso..."
     

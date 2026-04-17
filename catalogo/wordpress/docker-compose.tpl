@@ -3,8 +3,6 @@ services:
     image: wordpress:6.4.2
     container_name: {{EMPRESA}}_wordpress
     restart: always
-    depends_on:
-      - mariadb
     environment:
       WORDPRESS_DB_HOST: {{EMPRESA}}_mariadb
       WORDPRESS_DB_USER: {{DB_USER}}
