@@ -60,6 +60,12 @@ generar_password() {
     openssl rand -hex "$((length / 2))" | cut -c1-$length
 }
 
+# Generar token aleatorio
+generar_token() {
+    local length="${1:-32}"
+    openssl rand -hex "$((length / 2))" | cut -c1-$length
+}
+
 # Guardar credenciales (txt simple)
 guardar_credenciales() {
     local empresa="$1"
@@ -139,5 +145,5 @@ backup_servicio() {
 }
 
 # Exportar funciones
-export -f validar_nombre confirmar generar_password guardar_credenciales leer_credenciales leer_credenciales_json backup_servicio
+export -f validar_nombre confirmar generar_password generar_token guardar_credenciales leer_credenciales leer_credenciales_json backup_servicio
 
