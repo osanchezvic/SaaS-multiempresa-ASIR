@@ -28,6 +28,7 @@ SERVICIO="${2:-}"
 
 # Iniciar log
 init_log "$EMPRESA" "$SERVICIO" "deploy"
+LOG_FILE="$LOG_DIR/${EMPRESA}_${SERVICIO}_$(date +%Y%m%d).log"
 
 # =====================================================
 # FUNCIÓN: PROCESAR TEMPLATES
