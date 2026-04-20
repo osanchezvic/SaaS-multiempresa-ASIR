@@ -156,30 +156,18 @@ Esto se llama **sustitución de texto** - es como completar huecos en una planti
 
 ## 7. LA BASE DE DATOS (DB) DEL SISTEMA
 
-El proyecto tiene una "mini base de datos" en archivos de texto:
+El proyecto ha evolucionado a una arquitectura con base de datos real (MariaDB) para gestionar los usuarios y empresas, mejorando la seguridad y permitiendo el control de acceso basado en roles (RBAC).
 
-**Archivos en `scripts/databases/`:**
+**Tabla `usuarios`:**
+- Almacena: `id`, `usuario`, `hash_password`, `empresa_id` (relación), `es_admin`, `estado`.
+- Permite diferenciar entre administradores globales y administradores de empresa (tenants).
 
-### empresas.txt
-```
-acme
-empresa2
-micros
-```
-
-### servicios.txt
-```
-acme:wordpress:8042:running
-acme:mariadb:8043:running
-empresa2:grafana:8050:running
-```
-
-**Formato:** `empresa:servicio:puerto:estado`
-
-### credentials/
-Aquí están las contraseñas (una archivo por servicio, formato JSON con permisos 600 para seguridad).
+**Control de Acceso (RBAC):**
+- **Administradores Globales (`es_admin` = 1):** Acceso total a todas las empresas y estadísticas del sistema.
+- **Administradores de Empresa (`es_admin` = 0, `empresa_id` = ID):** Acceso restringido únicamente a los datos de su propia empresa.
 
 ---
+
 
 ## 8. QUÉ ES DOCKER Y DOCKER COMPOSE (RESUMEN)
 

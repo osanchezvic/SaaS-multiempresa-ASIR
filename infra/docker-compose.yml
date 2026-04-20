@@ -150,6 +150,21 @@ services:
     expose:
       - 9091
 
+  api:
+    build: ./api
+    container_name: infra_api
+    restart: unless-stopped
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ../scripts:/workspaces/SaaS-multiempresa-ASIR/scripts
+      - ../data:/workspaces/SaaS-multiempresa-ASIR/data
+    networks:
+      - infra_net
+    environment:
+      - API_TOKEN=${API_TOKEN:-supersecrettoken}
+    ports:
+      - "8000:8000"
+
   redis:
     image: redis:alpine
     container_name: redis

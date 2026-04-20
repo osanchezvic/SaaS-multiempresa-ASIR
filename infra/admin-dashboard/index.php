@@ -28,7 +28,7 @@ if (!isset($_SESSION['admin'])) {
         $admin_pass = $_POST['admin_password'] ?? '';
         $admin_user = $_POST['admin_user'] ?? 'admin';
         
-        $sql = "SELECT id, hash_password FROM usuarios WHERE usuario = ? AND es_admin = 1";
+        $sql = "SELECT id, hash_password, empresa_id, es_admin FROM usuarios WHERE usuario = ?";
         $stmt = mysqli_prepare($conn, $sql);
         mysqli_stmt_bind_param($stmt, "s", $admin_user);
         mysqli_stmt_execute($stmt);
@@ -36,16 +36,23 @@ if (!isset($_SESSION['admin'])) {
         
         if ($row = mysqli_fetch_assoc($result)) {
             if (password_verify($admin_pass, $row['hash_password'])) {
-                $_SESSION['admin'] = 1;
-                $_SESSION['admin_id'] = $row['id'];
-                // Log de acceso
-                $ip = $_SERVER['REMOTE_ADDR'];
-                $log_sql = "INSERT INTO access_logs (usuario_id, accion, ip_address) VALUES (?, 'admin_login', ?)";
-                $log_stmt = mysqli_prepare($conn, $log_sql);
-                mysqli_stmt_bind_param($log_stmt, "is", $row['id'], $ip);
-                mysqli_stmt_execute($log_stmt);
-                header("Location: " . $_SERVER['PHP_SELF']);
-                exit;
+                // Verificar si tiene acceso (es_admin = 1 O empresa_id NOT NULL)
+                if ($row['es_admin'] != 1 && is_null($row['empresa_id'])) {
+                    $error = "Usuario sin permisos de acceso";
+                } else {
+                    $_SESSION['admin'] = 1;
+                    $_SESSION['admin_id'] = $row['id'];
+                    $_SESSION['empresa_id'] = $row['empresa_id'];
+                    $_SESSION['es_admin'] = $row['es_admin'];
+                    // Log de acceso
+                    $ip = $_SERVER['REMOTE_ADDR'];
+                    $log_sql = "INSERT INTO access_logs (usuario_id, accion, ip_address) VALUES (?, 'admin_login', ?)";
+                    $log_stmt = mysqli_prepare($conn, $log_sql);
+                    mysqli_stmt_bind_param($log_stmt, "is", $row['id'], $ip);
+                    mysqli_stmt_execute($log_stmt);
+                    header("Location: " . $_SERVER['PHP_SELF']);
+                    exit;
+                }
             }
         }
         $error = "Credenciales de admin inválidas";
@@ -152,8 +159,23 @@ if (!isset($_SESSION['admin'])) {
 }
 
 // Usuario autenticado - Obtener datos del dashboard
-$empresas_sql = "SELECT * FROM empresas WHERE estado = 'activa' ORDER BY nombre";
-$empresas_result = mysqli_query($conn, $empresas_sql);
+$where_empresa = "";
+$params = [];
+$types = "";
+
+if ($_SESSION['es_admin'] != 1) {
+    $where_empresa = " AND id = ?";
+    $params[] = $_SESSION['empresa_id'];
+    $types .= "i";
+}
+
+$empresas_sql = "SELECT * FROM empresas WHERE estado = 'activa'" . $where_empresa . " ORDER BY nombre";
+$empresas_stmt = mysqli_prepare($conn, $empresas_sql);
+if (!empty($params)) {
+    mysqli_stmt_bind_param($empresas_stmt, $types, ...$params);
+}
+mysqli_stmt_execute($empresas_stmt);
+$empresas_result = mysqli_stmt_get_result($empresas_stmt);
 $empresas = [];
 while ($row = mysqli_fetch_assoc($empresas_result)) {
     $empresas[] = $row;
@@ -174,12 +196,23 @@ foreach ($empresas as $empresa) {
 }
 
 // Estadísticas
-$stats_sql = "SELECT 
-    COUNT(DISTINCT empresa_id) as total_empresas,
-    COUNT(DISTINCT id) as total_usuarios,
-    (SELECT COUNT(*) FROM servicios_contratados WHERE estado = 'activo') as total_servicios
-FROM usuarios WHERE estado = 'activo'";
-$stats = mysqli_fetch_assoc(mysqli_query($conn, $stats_sql));
+if ($_SESSION['es_admin'] == 1) {
+    $stats_sql = "SELECT 
+        (SELECT COUNT(*) FROM empresas WHERE estado = 'activa') as total_empresas,
+        (SELECT COUNT(*) FROM usuarios WHERE estado = 'activo') as total_usuarios,
+        (SELECT COUNT(*) FROM servicios_contratados WHERE estado = 'activo') as total_servicios";
+    $stats = mysqli_fetch_assoc(mysqli_query($conn, $stats_sql));
+} else {
+    $emp_id = $_SESSION['empresa_id'];
+    $stats_sql = "SELECT 
+        (SELECT COUNT(*) FROM empresas WHERE id = ? AND estado = 'activa') as total_empresas,
+        (SELECT COUNT(*) FROM usuarios WHERE empresa_id = ? AND estado = 'activo') as total_usuarios,
+        (SELECT COUNT(*) FROM servicios_contratados WHERE empresa_id = ? AND estado = 'activo') as total_servicios";
+    $stmt = mysqli_prepare($conn, $stats_sql);
+    mysqli_stmt_bind_param($stmt, "iii", $emp_id, $emp_id, $emp_id);
+    mysqli_stmt_execute($stmt);
+    $stats = mysqli_fetch_assoc(mysqli_stmt_get_result($stmt));
+}
 
 ?>
 <!DOCTYPE html>
@@ -345,7 +378,7 @@ $stats = mysqli_fetch_assoc(mysqli_query($conn, $stats_sql));
     <div class="header">
         <h1>📊 Dashboard Admin - SaaS MultiEmpresa</h1>
         <div class="header-actions">
-            <span>Conectado como: admin</span>
+            <span>Conectado: <?php echo htmlspecialchars($_SESSION['admin_id'] ?? 'N/A'); ?></span>
             <form method="GET" style="margin: 0;">
                 <button type="submit" name="logout" value="1" class="logout-btn">Cerrar sesión</button>
             </form>
@@ -380,17 +413,22 @@ $stats = mysqli_fetch_assoc(mysqli_query($conn, $stats_sql));
             <?php else: ?>
                 <?php foreach ($empresas as $empresa): ?>
                     <div class="empresa-card">
-                        <div class="empresa-header">
-                            <div>
-                                <h3><?php echo htmlspecialchars($empresa['nombre']); ?></h3>
-                                <?php if ($empresa['descripcion']): ?>
-                                    <p style="font-size: 13px; color: #666; margin-top: 5px;">
-                                        <?php echo htmlspecialchars($empresa['descripcion']); ?>
-                                    </p>
-                                <?php endif; ?>
-                            </div>
-                            <span class="empresa-status">✓ Activa</span>
-                        </div>
+                                <div class="empresa-header">
+                                    <div>
+                                        <h3><?php echo htmlspecialchars($empresa['nombre']); ?></h3>
+                                        <?php if ($empresa['descripcion']): ?>
+                                            <p style="font-size: 13px; color: #666; margin-top: 5px;">
+                                                <?php echo htmlspecialchars($empresa['descripcion']); ?>
+                                            </p>
+                                        <?php endif; ?>
+                                    </div>
+                                    <form method="POST" action="deploy_service.php" style="display:flex; gap:10px;">
+                                        <input type="hidden" name="empresa" value="<?php echo htmlspecialchars($empresa['nombre']); ?>">
+                                        <input type="text" name="servicio" placeholder="Nombre servicio" required style="padding:5px; border-radius:5px; border:1px solid #ccc;">
+                                        <button type="submit" class="logout-btn" style="padding:5px 10px; cursor:pointer;">Desplegar</button>
+                                    </form>
+                                    <span class="empresa-status">✓ Activa</span>
+                                </div>
                         
                         <div class="servicios-container">
                             <?php if (empty($servicios_por_empresa[$empresa['id']])): ?>

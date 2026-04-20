@@ -13,6 +13,7 @@ source "$SCRIPT_PATH/funciones/db.sh"
 source "$SCRIPT_PATH/funciones/puertos.sh"
 source "$SCRIPT_PATH/funciones/utils.sh"
 source "$SCRIPT_PATH/funciones/validaciones.sh"
+source "$SCRIPT_PATH/funciones/seguridad.sh"
 
 # =====================================================
 # INICIO Y BLOQUEO
@@ -226,6 +227,15 @@ procesar_template "$CATALOGO_SERVICIO/env.tpl" "$SERVICIO_DIR/.env" \
 if ! validar_compose_template "$EMPRESA" "$SERVICIO"; then
     log_failed "docker-compose.yml inválido"
     exit 1
+fi
+
+# Pre-flight security scan
+IMAGE=$(grep -m 1 "image:" "$COMPOSE_FILE" | awk '{print $2}' | tr -d '"' | tr -d "'")
+if [ -n "$IMAGE" ]; then
+    if ! scan_image "$IMAGE"; then
+        log_failed "Escaneo de seguridad fallido"
+        exit 1
+    fi
 fi
 
 validar_env_template "$EMPRESA" "$SERVICIO" || log_warn ".env no validado"
