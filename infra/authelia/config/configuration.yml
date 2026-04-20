@@ -1,0 +1,14 @@
+# Authelia configuration
+authentication_backend:
+  file:
+    path: /config/users.yml
+
+session:
+  secret: "${AUTHELIA_SESSION_SECRET}"
+  redis:
+    host: redis
+    port: 6379
+
+access_control:
+  default_policy: deny
+  rules: []

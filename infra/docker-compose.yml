@@ -137,6 +137,28 @@ services:
     networks:
       - infra_net
 
+  authelia:
+    image: authelia/authelia:latest
+    container_name: authelia
+    restart: unless-stopped
+    volumes:
+      - ./authelia/config:/config
+    networks:
+      - infra_net
+    environment:
+      - TZ=UTC
+    expose:
+      - 9091
+
+  redis:
+    image: redis:alpine
+    container_name: redis
+    restart: unless-stopped
+    volumes:
+      - redis_data:/data
+    networks:
+      - infra_net
+
   watchtower:
     image: containrrr/watchtower:1.6.0
     container_name: watchtower_global
@@ -180,6 +202,7 @@ volumes:
   grafana_data:
   grafana_config:
   fail2ban_data:
+  redis_data:
 
 networks:
   infra_net:

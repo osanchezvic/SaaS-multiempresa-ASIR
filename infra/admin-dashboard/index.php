@@ -15,8 +15,16 @@ mysqli_set_charset($conn, "utf8mb4");
 
 // Verificar si es admin
 if (!isset($_SESSION['admin'])) {
+    // CSRF token generation
+    if (empty($_SESSION['csrf_token'])) {
+        $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+    }
+
     // Si no hay sesión admin, redirigir a login
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
+            die("Error de seguridad: Token CSRF inválido");
+        }
         $admin_pass = $_POST['admin_password'] ?? '';
         $admin_user = $_POST['admin_user'] ?? 'admin';
         
@@ -133,6 +141,7 @@ if (!isset($_SESSION['admin'])) {
                     <label for="admin_password">Contraseña:</label>
                     <input type="password" id="admin_password" name="admin_password" required>
                 </div>
+                <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
                 <button type="submit" class="btn">Acceder</button>
             </form>
         </div>
