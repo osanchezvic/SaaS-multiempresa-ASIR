@@ -18,9 +18,9 @@ services:
     environment:
       DB_MYSQL_HOST: "db"
       DB_MYSQL_PORT: 3306
-      DB_MYSQL_USER: ${DB_MYSQL_USER}
-      DB_MYSQL_PASSWORD: ${DB_MYSQL_PASSWORD}
-      DB_MYSQL_NAME: ${DB_MYSQL_NAME}
+      DB_MYSQL_USER: ${NPM_DB_USER}
+      DB_MYSQL_PASSWORD: ${NPM_DB_PASSWORD}
+      DB_MYSQL_NAME: ${NPM_DB_NAME}
     volumes:
       - ./data:/data
       - ./letsencrypt:/etc/letsencrypt
@@ -50,5 +50,4 @@ volumes:
 
 networks:
   infra_net:
-    driver: bridge
-    name: infra_net
+    external: true

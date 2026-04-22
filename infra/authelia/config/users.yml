@@ -1,7 +1,8 @@
 users:
   admin:
-    username: admin
-    password: "$2a$12$K1yY.d4R4.vB.iXyD9OQY.9Z5Fp4m2Jp9m9S1g7Zq7v6Yq7v6Yq7v" # TODO: Change this
-    email: admin@example.com
+    displayname: "Administrador"
+    password: "$argon2id$v=19$m=65536,t=3,p=4$X8XIn9HIs7B9PloMvWd2vw$I6X9v6fN/fJj7z4G5LwX8A7yQyS7H9f0uG5G5G5G5G5" # Password: admin
+    email: admin@osanchez.org
     groups:
       - admins
+      - users

@@ -2,59 +2,19 @@ version: '3.8'
 
 services:
   admin_dashboard:
-    image: php:8.2-apache
+    build: .
     container_name: infra_admin_dashboard
     restart: unless-stopped
     environment:
-      DB_HOST: ${DB_HOST:-infra_users_db}
-      DB_NAME: ${DB_NAME:-users_db}
-      DB_USER: ${DB_USER:-users_user}
-      DB_PASSWORD: ${DB_PASSWORD:-users_pass}
-      TZ: America/Argentina/Buenos_Aires
-    volumes:
-      - ./index.php:/var/www/html/index.php:ro
-      - ./config/:/var/www/html/config/:ro
+      DB_HOST: infra_users_db
+      DB_NAME: users_db
+      DB_USER: users_user
+      DB_PASSWORD: users_pass
     ports:
-      - "${DASHBOARD_PORT:-8080}:80"
-    depends_on:
-      users_db:
-        condition: service_healthy
+      - "8080:80"
     networks:
-      - infra_network
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost/"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-
-  users_db:
-    image: mariadb:latest
-    container_name: infra_users_db
-    restart: unless-stopped
-    environment:
-      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-root_secure_pass}
-      MYSQL_DATABASE: ${DB_NAME:-users_db}
-      MYSQL_USER: ${DB_USER:-users_user}
-      MYSQL_PASSWORD: ${DB_PASSWORD:-users_pass}
-      MYSQL_INITDB_SKIP_TZINFO: 'yes'
-    volumes:
-      - users_db_data:/var/lib/mysql
-      - ../users_db/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql
-      - ../users_db/init_data.sql:/docker-entrypoint-initdb.d/02-init-data.sql
-    ports:
-      - "${DB_PORT:-3306}:3306"
-    healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${DB_ROOT_PASSWORD:-root_secure_pass}"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-    networks:
-      - infra_network
-
-volumes:
-  users_db_data:
-    driver: local
+      - infra_net
 
 networks:
-  infra_network:
-    driver: bridge
+  infra_net:
+    external: true
