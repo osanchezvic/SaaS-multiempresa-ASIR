@@ -1,3 +1,4 @@
 infra/proxy/mysql/
 infra/proxy/data/
+infra/proxy/letsencrypt/
 infra/users-db/users-db-data/
