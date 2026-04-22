@@ -1,4 +1,3 @@
 infra/proxy/mysql/
 infra/proxy/data/
-infra/proxy/mysql/
-infra/proxy/data/
+infra/users-db/users-db-data/
