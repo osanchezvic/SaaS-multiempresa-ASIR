@@ -14,12 +14,15 @@ if (!$conn) {
 
 // Login logic
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $empresa = mysqli_real_escape_string($conn, $_POST['empresa'] ?? '');
-    $usuario = mysqli_real_escape_string($conn, $_POST['usuario'] ?? '');
+    $empresa = $_POST['empresa'] ?? '';
+    $usuario = $_POST['usuario'] ?? '';
     $password = $_POST['password'] ?? '';
 
-    $sql = "SELECT hash_password FROM usuarios WHERE empresa = '$empresa' AND usuario = '$usuario'";
-    $result = mysqli_query($conn, $sql);
+    $sql = "SELECT hash_password FROM usuarios WHERE empresa = ? AND usuario = ?";
+    $stmt = mysqli_prepare($conn, $sql);
+    mysqli_stmt_bind_param($stmt, "ss", $empresa, $usuario);
+    mysqli_stmt_execute($stmt);
+    $result = mysqli_stmt_get_result($stmt);
     
     if ($result && $row = mysqli_fetch_assoc($result)) {
         $hash = $row['hash_password'];

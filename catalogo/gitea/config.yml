@@ -1,0 +1,7 @@
+nombre: Gitea
+descripcion: Servicio de alojamiento de repositorios Git ligero y potente.
+categoria: desarrollo
+dependencias:
+  - mariadb
+puerto_defecto: 3000
+icon: git-branch

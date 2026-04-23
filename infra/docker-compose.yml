@@ -110,7 +110,7 @@ services:
       retries: 5
       start_period: 30s
     environment:
-      DB_MYSQL_HOST: ${NPM_DB_HOST:-db}
+      DB_MYSQL_HOST: ${NPM_DB_HOST:-npm_db}
       DB_MYSQL_PORT: ${NPM_DB_PORT:-3306}
       DB_MYSQL_USER: ${NPM_DB_USER:-npm}
       DB_MYSQL_PASSWORD: ${NPM_DB_PASSWORD}
@@ -154,16 +154,60 @@ services:
     build: ./api
     container_name: infra_api
     restart: unless-stopped
+    command: ["uvicorn", "infra.api.app:app", "--host", "0.0.0.0", "--port", "8000"]
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-      - ../scripts:/workspaces/SaaS-multiempresa-ASIR/scripts
-      - ../data:/workspaces/SaaS-multiempresa-ASIR/data
+      - ..:/app
+    working_dir: /app
     networks:
       - infra_net
     environment:
       - API_TOKEN=${API_TOKEN:-supersecrettoken}
+      - PROJECT_ROOT=/app
     ports:
-      - "8000:8000"
+      - "8001:8000"
+
+  admin-dashboard:
+    build: ./admin-dashboard
+    container_name: infra_admin_dashboard
+    restart: unless-stopped
+    ports:
+      - "8000:80"
+    environment:
+      - DB_HOST=infra_users_db
+      - DB_NAME=users_db
+      - DB_USER=users_user
+      - DB_PASSWORD=users_pass
+      - API_TOKEN=${API_TOKEN:-d7f3e8b1a9c4d2e5f6a7b8c9d0e1f2a3}
+    networks:
+      - infra_net
+
+  alertmanager:
+    image: prom/alertmanager:v0.26.0
+    container_name: alertmanager_global
+    restart: unless-stopped
+    volumes:
+      - ./monitorizacion/alertmanager/alertmanager.yml:/etc/alertmanager/alertmanager.yml
+    networks:
+      - infra_net
+    ports:
+      - "9093:9093"
+
+  dashy:
+    image: lissy93/dashy:latest
+    container_name: dashy_portal
+    restart: unless-stopped
+    ports:
+      - "4000:8080"
+    volumes:
+      - ./dashy/conf.yml:/app/public/conf.yml
+    networks:
+      - infra_net
+    healthcheck:
+      test: ["CMD", "node", "/app/services/healthcheck.js"]
+      interval: 1m
+      timeout: 10s
+      retries: 3
 
   redis:
     image: redis:alpine

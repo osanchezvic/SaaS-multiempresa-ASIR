@@ -2,3 +2,17 @@ infra/proxy/mysql/
 infra/proxy/data/
 infra/proxy/letsencrypt/
 infra/users-db/users-db-data/
+
+# Ignorar TODOS los datos de bases de datos (MariaDB/MySQL)
+**/mariadb/
+**/mysql/
+**/performance_schema/
+**/sys/
+data/
+**/users-db/*
+
+# Ignorar certificados y cuentas de LetsEncrypt
+**/letsencrypt/
+
+# Ignorar archivos de configuración de salud de Docker
+.my-healthcheck.cnf

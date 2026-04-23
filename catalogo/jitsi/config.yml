@@ -1,0 +1,6 @@
+nombre: Jitsi Meet
+descripcion: Plataforma de videoconferencias segura, flexible y gratuita.
+categoria: comunicacion
+dependencias: []
+puerto_defecto: 8080
+icon: video

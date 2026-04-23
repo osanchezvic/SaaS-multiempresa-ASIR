@@ -1,0 +1,29 @@
+groups:
+- name: saas_alerts
+  rules:
+  - alert: ContainerDown
+    expr: up == 0
+    for: 1m
+    labels:
+      severity: critical
+    annotations:
+      summary: "Contenedor fuera de servicio: {{ $labels.instance }}"
+      description: "El contenedor {{ $labels.instance }} ha estado caído por más de 1 minuto."
+
+  - alert: HighCpuUsage
+    expr: 100 - (avg by(instance) (rate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 80
+    for: 5m
+    labels:
+      severity: warning
+    annotations:
+      summary: "Alto uso de CPU en {{ $labels.instance }}"
+      description: "El uso de CPU es superior al 80% durante los últimos 5 minutos."
+
+  - alert: HighMemoryUsage
+    expr: (node_memory_MemTotal_bytes - node_memory_MemAvailable_bytes) / node_memory_MemTotal_bytes * 100 > 90
+    for: 5m
+    labels:
+      severity: warning
+    annotations:
+      summary: "Alta carga de Memoria en {{ $labels.instance }}"
+      description: "El uso de RAM es superior al 90%."

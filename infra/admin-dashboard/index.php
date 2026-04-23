@@ -61,95 +61,110 @@ if (!isset($_SESSION['admin'])) {
     // Mostrar formulario login
     ?>
     <!DOCTYPE html>
-    <html>
+    <html lang="es">
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Admin Dashboard - Login</title>
+        <title>CloudControl - Login</title>
         <style>
             * { margin: 0; padding: 0; box-sizing: border-box; }
             body {
-                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                font-family: 'Inter', system-ui, -apple-system, sans-serif;
+                background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
                 min-height: 100vh;
                 display: flex;
                 align-items: center;
                 justify-content: center;
+                color: #1e293b;
             }
             .login-container {
-                background: white;
-                padding: 40px;
-                border-radius: 10px;
-                box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+                background: rgba(255, 255, 255, 0.95);
+                backdrop-filter: blur(10px);
+                padding: 3rem;
+                border-radius: 1.5rem;
+                box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
                 width: 100%;
-                max-width: 400px;
+                max-width: 450px;
+                border: 1px solid rgba(255, 255, 255, 0.3);
             }
             .login-container h1 {
-                color: #333;
-                margin-bottom: 30px;
+                font-size: 2rem;
+                font-weight: 800;
+                margin-bottom: 2rem;
                 text-align: center;
+                background: linear-gradient(to right, #4f46e5, #7c3aed);
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+                letter-spacing: -0.05em;
             }
-            .form-group {
-                margin-bottom: 20px;
-            }
+            .form-group { margin-bottom: 1.5rem; }
             .form-group label {
                 display: block;
-                margin-bottom: 8px;
-                color: #555;
-                font-weight: 500;
+                margin-bottom: 0.5rem;
+                font-weight: 600;
+                font-size: 0.875rem;
+                color: #475569;
             }
             .form-group input {
                 width: 100%;
-                padding: 12px;
-                border: 1px solid #ddd;
-                border-radius: 5px;
-                font-size: 14px;
+                padding: 0.75rem 1rem;
+                border: 1.5px solid #e2e8f0;
+                border-radius: 0.75rem;
+                font-size: 1rem;
+                transition: all 0.2s;
             }
             .form-group input:focus {
                 outline: none;
-                border-color: #667eea;
-                box-shadow: 0 0 0 3px rgba(102,126,234,0.1);
+                border-color: #4f46e5;
+                box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
             }
             .btn {
                 width: 100%;
-                padding: 12px;
-                background: #667eea;
+                padding: 0.75rem;
+                background: #4f46e5;
                 color: white;
                 border: none;
-                border-radius: 5px;
-                font-size: 16px;
-                font-weight: 600;
+                border-radius: 0.75rem;
+                font-size: 1rem;
+                font-weight: 700;
                 cursor: pointer;
-                transition: background 0.3s;
+                transition: all 0.2s;
+                margin-top: 1rem;
             }
-            .btn:hover { background: #764ba2; }
+            .btn:hover {
+                background: #4338ca;
+                transform: translateY(-1px);
+                box-shadow: 0 4px 12px rgba(79, 70, 229, 0.25);
+            }
             .error {
-                background: #fee;
-                color: #c33;
-                padding: 12px;
-                border-radius: 5px;
-                margin-bottom: 20px;
-                border-left: 4px solid #c33;
+                background: #fef2f2;
+                color: #b91c1c;
+                padding: 1rem;
+                border-radius: 0.75rem;
+                margin-bottom: 1.5rem;
+                border: 1px solid #fee2e2;
+                font-size: 0.875rem;
+                font-weight: 500;
             }
         </style>
     </head>
     <body>
         <div class="login-container">
-            <h1>🔐 Admin Dashboard</h1>
+            <h1>🔐 CloudControl Admin</h1>
             <?php if (isset($error)): ?>
                 <div class="error"><?php echo htmlspecialchars($error); ?></div>
             <?php endif; ?>
             <form method="POST">
                 <div class="form-group">
-                    <label for="admin_user">Usuario Admin:</label>
-                    <input type="text" id="admin_user" name="admin_user" value="admin" required>
+                    <label for="admin_user">Usuario</label>
+                    <input type="text" id="admin_user" name="admin_user" placeholder="admin" required>
                 </div>
                 <div class="form-group">
-                    <label for="admin_password">Contraseña:</label>
-                    <input type="password" id="admin_password" name="admin_password" required>
+                    <label for="admin_password">Contraseña</label>
+                    <input type="password" id="admin_password" name="admin_password" placeholder="••••••••" required>
                 </div>
                 <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
-                <button type="submit" class="btn">Acceder</button>
+                <button type="submit" class="btn">Iniciar Sesión</button>
             </form>
         </div>
     </body>
@@ -158,44 +173,7 @@ if (!isset($_SESSION['admin'])) {
     exit;
 }
 
-// Usuario autenticado - Obtener datos del dashboard
-$where_empresa = "";
-$params = [];
-$types = "";
-
-if ($_SESSION['es_admin'] != 1) {
-    $where_empresa = " AND id = ?";
-    $params[] = $_SESSION['empresa_id'];
-    $types .= "i";
-}
-
-$empresas_sql = "SELECT * FROM empresas WHERE estado = 'activa'" . $where_empresa . " ORDER BY nombre";
-$empresas_stmt = mysqli_prepare($conn, $empresas_sql);
-if (!empty($params)) {
-    mysqli_stmt_bind_param($empresas_stmt, $types, ...$params);
-}
-mysqli_stmt_execute($empresas_stmt);
-$empresas_result = mysqli_stmt_get_result($empresas_stmt);
-$empresas = [];
-while ($row = mysqli_fetch_assoc($empresas_result)) {
-    $empresas[] = $row;
-}
-
-// Obtener servicios por empresa
-$servicios_por_empresa = [];
-foreach ($empresas as $empresa) {
-    $srv_sql = "SELECT * FROM servicios_contratados WHERE empresa_id = ? AND estado = 'activo'";
-    $srv_stmt = mysqli_prepare($conn, $srv_sql);
-    mysqli_stmt_bind_param($srv_stmt, "i", $empresa['id']);
-    mysqli_stmt_execute($srv_stmt);
-    $srv_result = mysqli_stmt_get_result($srv_stmt);
-    $servicios_por_empresa[$empresa['id']] = [];
-    while ($row = mysqli_fetch_assoc($srv_result)) {
-        $servicios_por_empresa[$empresa['id']][] = $row;
-    }
-}
-
-// Estadísticas
+// Obtener estadísticas y datos
 if ($_SESSION['es_admin'] == 1) {
     $stats_sql = "SELECT 
         (SELECT COUNT(*) FROM empresas WHERE estado = 'activa') as total_empresas,
@@ -214,272 +192,286 @@ if ($_SESSION['es_admin'] == 1) {
     $stats = mysqli_fetch_assoc(mysqli_stmt_get_result($stmt));
 }
 
+$where_empresa = $_SESSION['es_admin'] != 1 ? " AND id = ?" : "";
+$empresas_sql = "SELECT * FROM empresas WHERE estado = 'activa'" . $where_empresa . " ORDER BY nombre";
+$empresas_stmt = mysqli_prepare($conn, $empresas_sql);
+if ($_SESSION['es_admin'] != 1) mysqli_stmt_bind_param($empresas_stmt, "i", $_SESSION['empresa_id']);
+mysqli_stmt_execute($empresas_stmt);
+$empresas_result = mysqli_stmt_get_result($empresas_stmt);
+
+$servicios_por_empresa = [];
+$empresas = [];
+while ($row = mysqli_fetch_assoc($empresas_result)) {
+    $empresas[] = $row;
+    $srv_sql = "SELECT * FROM servicios_contratados WHERE empresa_id = ? AND estado = 'activo'";
+    $srv_stmt = mysqli_prepare($conn, $srv_sql);
+    mysqli_stmt_bind_param($srv_stmt, "i", $row['id']);
+    mysqli_stmt_execute($srv_stmt);
+    $servicios_por_empresa[$row['id']] = mysqli_fetch_all(mysqli_stmt_get_result($srv_stmt), MYSQLI_ASSOC);
+}
 ?>
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard - Sistema SaaS</title>
+    <title>CloudControl - Admin Dashboard</title>
     <style>
+        :root {
+            --primary: #4f46e5;
+            --primary-hover: #4338ca;
+            --bg: #f8fafc;
+            --card-bg: #ffffff;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+        }
+
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #f5f7fa;
-            color: #333;
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background: var(--bg);
+            color: var(--text-main);
         }
+
         .header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 20px 40px;
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(12px);
+            padding: 1rem 2rem;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 50;
         }
-        .header h1 { font-size: 28px; }
-        .header-actions { display: flex; gap: 15px; align-items: center; }
-        .logout-btn {
-            background: rgba(255,255,255,0.2);
-            color: white;
-            padding: 10px 20px;
-            border: 1px solid white;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 14px;
-            transition: background 0.3s;
-        }
-        .logout-btn:hover { background: rgba(255,255,255,0.3); }
+
+        .header h1 { font-size: 1.25rem; font-weight: 800; background: linear-gradient(to right, #4f46e5, #7c3aed); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
         
-        .container { max-width: 1400px; margin: 0 auto; padding: 30px 20px; }
-        
+        .container { max-width: 1280px; margin: 2rem auto; padding: 0 1.5rem; }
+
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
-            margin-bottom: 40px;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3rem;
         }
+
         .stat-card {
-            background: white;
-            padding: 25px;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            text-align: center;
-            border-top: 4px solid #667eea;
+            background: var(--card-bg);
+            padding: 1.5rem;
+            border-radius: 1rem;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
         }
-        .stat-card h3 { color: #999; font-size: 14px; margin-bottom: 10px; text-transform: uppercase; }
-        .stat-card .value { font-size: 36px; font-weight: bold; color: #667eea; }
-        
-        .empresas-section h2 { margin-bottom: 25px; color: #333; }
-        
+        .stat-card h3 { font-size: 0.75rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; margin-bottom: 0.5rem; }
+        .stat-card .value { font-size: 2.25rem; font-weight: 800; color: var(--primary); }
+
         .empresa-card {
-            background: white;
-            border-radius: 10px;
-            margin-bottom: 30px;
+            background: var(--card-bg);
+            border-radius: 1.25rem;
+            box-shadow: var(--shadow);
+            margin-bottom: 2.5rem;
             overflow: hidden;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            border-left: 5px solid #667eea;
+            border: 1px solid var(--border);
         }
+
         .empresa-header {
-            background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%);
-            padding: 20px;
-            border-bottom: 1px solid #eee;
+            padding: 1.5rem 2rem;
+            background: #f8fafc;
+            border-bottom: 1px solid var(--border);
             display: flex;
             justify-content: space-between;
             align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
         }
-        .empresa-header h3 { font-size: 20px; color: #333; }
-        .empresa-status {
-            display: inline-block;
-            padding: 5px 12px;
-            background: #28a745;
-            color: white;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 600;
-        }
+
+        .empresa-info h3 { font-size: 1.25rem; font-weight: 700; margin-bottom: 0.25rem; }
         
-        .servicios-container {
-            padding: 20px;
-        }
-        .servicios-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 15px;
-        }
-        .servicio-item {
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            padding: 15px;
-            background: #fafbfc;
-            transition: all 0.3s;
-            cursor: pointer;
-        }
-        .servicio-item:hover {
-            border-color: #667eea;
-            box-shadow: 0 4px 12px rgba(102,126,234,0.2);
-            transform: translateY(-2px);
-        }
-        .servicio-item h4 {
-            color: #667eea;
-            margin-bottom: 8px;
-            font-size: 16px;
-        }
-        .servicio-item p {
-            font-size: 13px;
-            color: #666;
-            margin: 4px 0;
-        }
-        .servicio-tipo {
-            display: inline-block;
-            background: #e7f3ff;
-            color: #0066cc;
-            padding: 3px 8px;
-            border-radius: 3px;
-            font-size: 12px;
-            margin-top: 10px;
-        }
-        .servicio-actions {
-            margin-top: 12px;
+        .deploy-form {
             display: flex;
-            gap: 10px;
+            gap: 0.5rem;
+            background: white;
+            padding: 0.375rem;
+            border-radius: 0.75rem;
+            border: 1px solid #cbd5e1;
+            width: 100%;
+            max-width: 400px;
         }
-        .servicio-btn {
+
+        .deploy-form input {
             flex: 1;
-            padding: 8px 12px;
-            background: #667eea;
+            border: none;
+            padding: 0.5rem 0.75rem;
+            outline: none;
+            font-size: 0.875rem;
+        }
+
+        .btn-deploy {
+            background: var(--primary);
             color: white;
             border: none;
-            border-radius: 5px;
-            font-size: 12px;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            font-size: 0.875rem;
             cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-deploy:hover { background: var(--primary-hover); transform: translateY(-1px); }
+
+        .servicios-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+            padding: 2rem;
+        }
+
+        .servicio-item {
+            background: #ffffff;
+            padding: 1.5rem;
+            border-radius: 1rem;
+            border: 1px solid var(--border);
+            transition: all 0.2s;
+            position: relative;
+        }
+        .servicio-item:hover { border-color: var(--primary); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); }
+
+        .servicio-item h4 { color: var(--text-main); font-size: 1.125rem; font-weight: 700; margin-bottom: 1rem; display: flex; align-items: center; justify-content: space-between; }
+        
+        .badge-status {
+            font-size: 0.625rem;
+            padding: 0.25rem 0.625rem;
+            background: #dcfce7;
+            color: #166534;
+            border-radius: 9999px;
+            text-transform: uppercase;
+            font-weight: 700;
+        }
+
+        .servicio-meta { font-size: 0.875rem; color: var(--text-muted); margin-bottom: 1rem; }
+        .servicio-meta p { display: flex; justify-content: space-between; margin-bottom: 0.25rem; }
+        .servicio-meta strong { color: var(--text-main); }
+
+        .btn-panel {
+            display: block;
+            width: 100%;
+            text-align: center;
+            padding: 0.625rem;
+            background: #f1f5f9;
+            color: var(--text-main);
             text-decoration: none;
-            text-align: center;
-            transition: background 0.3s;
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+            font-weight: 600;
+            transition: all 0.2s;
         }
-        .servicio-btn:hover { background: #764ba2; }
-        
-        .empty-state {
-            text-align: center;
-            padding: 40px;
-            color: #999;
+        .btn-panel:hover { background: #e2e8f0; color: var(--primary); }
+
+        .btn-logout {
+            padding: 0.5rem 1rem;
+            background: #f1f5f9;
+            color: #475569;
+            text-decoration: none;
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+            font-weight: 600;
+            transition: all 0.2s;
         }
-        .empty-state p { font-size: 16px; }
-        
-        @media (max-width: 768px) {
-            .header { flex-direction: column; gap: 15px; }
+        .btn-logout:hover { background: #fee2e2; color: #b91c1c; }
+
+        @media (max-width: 640px) {
+            .header { flex-direction: column; gap: 1rem; padding: 1rem; }
             .stats-grid { grid-template-columns: 1fr; }
-            .servicios-grid { grid-template-columns: 1fr; }
-            .empresa-header { flex-direction: column; gap: 10px; align-items: flex-start; }
+            .deploy-form { max-width: 100%; }
         }
     </style>
 </head>
 <body>
-    <div class="header">
-        <h1>📊 Dashboard Admin - SaaS MultiEmpresa</h1>
-        <div class="header-actions">
-            <span>Conectado: <?php echo htmlspecialchars($_SESSION['admin_id'] ?? 'N/A'); ?></span>
-            <form method="GET" style="margin: 0;">
-                <button type="submit" name="logout" value="1" class="logout-btn">Cerrar sesión</button>
-            </form>
-        </div>
-    </div>
+    <header class="header">
+        <h1>🚀 CloudControl Dashboard</h1>
+        <div style="display: flex; align-items: center; gap: 1.5rem;">
+            <div style="text-align: right; line-height: 1;">
+                <p style="font-size: 0.75rem; color: var(--text-muted); font-weight: 600;">ADMINISTRADOR</p>
+                <p style="font-size: 0.875rem; font-weight: 700;"><?php echo htmlspecialchars($_SESSION['admin_id']); ?></p>
+            </div>
+            <a href="?logout=1" class="btn-logout">Salir</a>
+        </header>
 
-    <div class="container">
-        <!-- Estadísticas -->
-        <div class="stats-grid">
+    <main class="container">
+        <section class="stats-grid">
             <div class="stat-card">
-                <h3>Empresas Activas</h3>
-                <div class="value"><?php echo $stats['total_empresas'] ?? 0; ?></div>
+                <h3>Empresas Gestionadas</h3>
+                <div class="value"><?php echo $stats['total_empresas']; ?></div>
             </div>
             <div class="stat-card">
-                <h3>Usuarios Registrados</h3>
-                <div class="value"><?php echo $stats['total_usuarios'] ?? 0; ?></div>
+                <h3>Servicios Desplegados</h3>
+                <div class="value"><?php echo $stats['total_servicios']; ?></div>
             </div>
             <div class="stat-card">
-                <h3>Servicios Contratados</h3>
-                <div class="value"><?php echo $stats['total_servicios'] ?? 0; ?></div>
+                <h3>Usuarios del Sistema</h3>
+                <div class="value"><?php echo $stats['total_usuarios']; ?></div>
             </div>
-        </div>
+        </section>
 
-        <!-- Empresas y Servicios -->
-        <div class="empresas-section">
-            <h2>🏢 Empresas y Servicios Contratados</h2>
+        <section>
+            <h2 style="font-size: 1.5rem; font-weight: 800; margin-bottom: 1.5rem; letter-spacing: -0.025em;">Infraestructura Multiempresa</h2>
             
             <?php if (empty($empresas)): ?>
-                <div class="empty-state">
-                    <p>No hay empresas activas en el sistema.</p>
+                <div style="background: white; padding: 4rem; text-align: center; border-radius: 1rem; border: 1px dashed #cbd5e1;">
+                    <p style="color: var(--text-muted);">No hay empresas activas en este momento.</p>
                 </div>
             <?php else: ?>
                 <?php foreach ($empresas as $empresa): ?>
-                    <div class="empresa-card">
-                                <div class="empresa-header">
-                                    <div>
-                                        <h3><?php echo htmlspecialchars($empresa['nombre']); ?></h3>
-                                        <?php if ($empresa['descripcion']): ?>
-                                            <p style="font-size: 13px; color: #666; margin-top: 5px;">
-                                                <?php echo htmlspecialchars($empresa['descripcion']); ?>
-                                            </p>
+                    <article class="empresa-card">
+                        <div class="empresa-header">
+                            <div class="empresa-info">
+                                <h3><?php echo htmlspecialchars($empresa['nombre']); ?></h3>
+                                <p style="font-size: 0.875rem; color: var(--text-muted);"><?php echo htmlspecialchars($empresa['descripcion'] ?: 'Cliente Corporativo SaaS'); ?></p>
+                            </div>
+                            
+                            <form method="POST" action="deploy_service.php" class="deploy-form">
+                                <input type="hidden" name="empresa" value="<?php echo htmlspecialchars($empresa['nombre']); ?>">
+                                <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
+                                <input type="text" name="servicio" placeholder="Nombre del nuevo servicio..." required>
+                                <button type="submit" class="btn-deploy">Desplegar</button>
+                            </form>
+                        </div>
+                        
+                        <div class="servicios-grid">
+                            <?php if (empty($servicios_por_empresa[$empresa['id']])): ?>
+                                <p style="grid-column: 1/-1; text-align: center; color: var(--text-muted); padding: 1rem; font-size: 0.875rem; font-style: italic;">Sin servicios activos.</p>
+                            <?php else: ?>
+                                <?php foreach ($servicios_por_empresa[$empresa['id']] as $servicio): ?>
+                                    <div class="servicio-item">
+                                        <h4>
+                                            <span>📦 <?php echo htmlspecialchars($servicio['nombre_servicio']); ?></span>
+                                            <span class="badge-status">Running</span>
+                                        </h4>
+                                        <div class="servicio-meta">
+                                            <p><span>ID:</span> <strong>#<?php echo $servicio['id']; ?></strong></p>
+                                            <p><span>Infraestructura:</span> <strong>Docker Container</strong></p>
+                                            <p><span>Puerto Asignado:</span> <strong><?php echo $servicio['puerto']; ?></strong></p>
+                                        </div>
+                                        <?php if ($servicio['url_admin']): ?>
+                                            <a href="<?php echo htmlspecialchars($servicio['url_admin']); ?>" target="_blank" class="btn-panel">Acceder al Panel</a>
+                                        <?php else: ?>
+                                            <button class="btn-panel" style="opacity: 0.5; cursor: not-allowed;" disabled>Panel no disponible</button>
                                         <?php endif; ?>
                                     </div>
-                                    <form method="POST" action="deploy_service.php" style="display:flex; gap:10px;">
-                                        <input type="hidden" name="empresa" value="<?php echo htmlspecialchars($empresa['nombre']); ?>">
-                                        <input type="text" name="servicio" placeholder="Nombre servicio" required style="padding:5px; border-radius:5px; border:1px solid #ccc;">
-                                        <button type="submit" class="logout-btn" style="padding:5px 10px; cursor:pointer;">Desplegar</button>
-                                    </form>
-                                    <span class="empresa-status">✓ Activa</span>
-                                </div>
-                        
-                        <div class="servicios-container">
-                            <?php if (empty($servicios_por_empresa[$empresa['id']])): ?>
-                                <div class="empty-state">
-                                    <p>No tiene servicios contratados aún</p>
-                                </div>
-                            <?php else: ?>
-                                <div class="servicios-grid">
-                                    <?php foreach ($servicios_por_empresa[$empresa['id']] as $servicio): ?>
-                                        <div class="servicio-item">
-                                            <h4>📦 <?php echo htmlspecialchars($servicio['nombre_servicio']); ?></h4>
-                                            <?php if ($servicio['tipo']): ?>
-                                                <p><strong>Tipo:</strong> <?php echo htmlspecialchars($servicio['tipo']); ?></p>
-                                            <?php endif; ?>
-                                            <?php if ($servicio['puerto']): ?>
-                                                <p><strong>Puerto:</strong> <?php echo $servicio['puerto']; ?></p>
-                                            <?php endif; ?>
-                                            <?php if ($servicio['fecha_contratacion']): ?>
-                                                <p><strong>Contratación:</strong> <?php echo date('d/m/Y', strtotime($servicio['fecha_contratacion'])); ?></p>
-                                            <?php endif; ?>
-                                            <span class="servicio-tipo"><?php echo ucfirst($servicio['tipo'] ?? 'General'); ?></span>
-                                            <div class="servicio-actions">
-                                                <?php if ($servicio['url_admin']): ?>
-                                                    <a href="<?php echo htmlspecialchars($servicio['url_admin']); ?>" 
-                                                       target="_blank" class="servicio-btn">
-                                                       Panel Admin
-                                                    </a>
-                                                <?php else: ?>
-                                                    <span class="servicio-btn" style="background: #ccc; cursor: default;">No disponible</span>
-                                                <?php endif; ?>
-                                            </div>
-                                        </div>
-                                    <?php endforeach; ?>
-                                </div>
+                                <?php endforeach; ?>
                             <?php endif; ?>
                         </div>
-                    </div>
+                    </article>
                 <?php endforeach; ?>
             <?php endif; ?>
-        </div>
-    </div>
+        </section>
+    </main>
 
-    <?php
-    if (isset($_GET['logout'])) {
-        session_destroy();
-        header("Location: " . $_SERVER['PHP_SELF']);
-        exit;
-    }
-    ?>
+    <?php if (isset($_GET['logout'])) { session_destroy(); header("Location: " . $_SERVER['PHP_SELF']); exit; } ?>
 </body>
 </html>
-<?php
-mysqli_close($conn);
-?>
+<?php mysqli_close($conn); ?>

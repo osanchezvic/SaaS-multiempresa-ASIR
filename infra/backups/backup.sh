@@ -50,19 +50,29 @@ if [ -z "$VOLUMES" ]; then
 fi
 
 # Crear backup (volúmenes + config)
+TEMP_BACKUP_DIR=$(mktemp -d)
+trap 'rm -rf "$TEMP_BACKUP_DIR"' EXIT
+
 {
     # Exportar config del contenedor
-    docker inspect "$CONTAINER" > /tmp/${CONTAINER}_config.json 2>/dev/null || true
-    tar -czf "$BACKUP_FILE" -C /tmp ${CONTAINER}_config.json 2>/dev/null || true
+    docker inspect "$CONTAINER" > "$TEMP_BACKUP_DIR/container_config.json" 2>/dev/null || true
     
     # Backup de volúmenes
     for vol in $VOLUMES; do
         VOL_PATH="/var/lib/docker/volumes/$vol/_data"
         if [ -d "$VOL_PATH" ]; then
-            tar -czf "$BACKUP_FILE" -C "/var/lib/docker/volumes/$vol" _data 2>/dev/null || true
+            echo "[INFO] Copiando volumen: $vol"
+            mkdir -p "$TEMP_BACKUP_DIR/volumes/$vol"
+            cp -a "$VOL_PATH/." "$TEMP_BACKUP_DIR/volumes/$vol/" 2>/dev/null || true
         fi
     done
-} || true
+
+    # Crear el archivo comprimido final desde el directorio temporal
+    tar -czf "$BACKUP_FILE" -C "$TEMP_BACKUP_DIR" .
+} || {
+    echo "[ERROR] Falló la creación del backup"
+    exit 1
+}
 
 # Registrar backup
 SIZE=$(du -h "$BACKUP_FILE" | cut -f1)

@@ -1,0 +1,7 @@
+nombre: Prestashop
+descripcion: Solución e-commerce líder para crear y gestionar tiendas online.
+categoria: e-commerce
+dependencias:
+  - mariadb
+puerto_defecto: 80
+icon: shopping-cart
