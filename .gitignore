@@ -1,18 +1,37 @@
-infra/proxy/mysql/
-infra/proxy/data/
-infra/proxy/letsencrypt/
-infra/users-db/users-db-data/
+# === BACKUPS Y ARCHIVOS PESADOS ===
+# Ignora cualquier carpeta de backups y archivos comprimidos
+backups/
+*.tar.gz
+*.zip
+*.sql
+*.log
 
-# Ignorar TODOS los datos de bases de datos (MariaDB/MySQL)
-**/mariadb/
+# === BASES DE DATOS (Persistencia) ===
+# Ignora directorios de datos de MySQL/MariaDB en cualquier nivel
 **/mysql/
+**/mariadb/
+**/data/
+**/users-db-data/
+**/users-db/
+aria_log.*
 **/performance_schema/
 **/sys/
-data/
-**/users-db/*
-
-# Ignorar certificados y cuentas de LetsEncrypt
-**/letsencrypt/
-
-# Ignorar archivos de configuración de salud de Docker
+# Archivos de configuración de salud/credenciales temporales
 .my-healthcheck.cnf
+
+# === SEGURIDAD Y CERTIFICADOS ===
+# Ignora certificados de Let'sEncrypt y claves privadas
+**/letsencrypt/
+*.pem
+*.key
+*.crt
+
+# === CONFIGURACIÓN SENSIBLE (Secretos) ===
+# No subas nunca tus contraseñas reales
+.env
+infra/authelia/config/notification.txt
+
+# === DOCKER & SISTEMA ===
+# Ignora volúmenes genéricos si decides usarlos
+**/volumes/
+.DS_Store

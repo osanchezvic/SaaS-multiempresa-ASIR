@@ -1,6 +1,6 @@
 nombre: zabbix
 descripcion: Plataforma de monitorización avanzada con servidor y frontend integrados.
-puerto_por_defecto: 8080
+puerto_por_defecto: 80
 puerto_secundario: 10051
 icono: https://assets.zabbix.com/img/logo/zabbix_logo_500x131.png
 volumenes:

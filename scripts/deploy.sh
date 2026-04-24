@@ -2,7 +2,7 @@
 set -euo pipefail
 
 # =====================================================
-# DEPLOY DE SERVICIOS - VERSION 2.1 (SIMPLIFICADA)
+# DEPLOY DE SERVICIOS - VERSION 2.2 (LIMPIA)
 # =====================================================
 
 # Cargar configuración
@@ -38,10 +38,13 @@ LOG_FILE="$LOG_DIR/${EMPRESA}_${SERVICIO}_$(date +%Y%m%d).log"
 procesar_template() {
     local tpl="$1" dest="$2"
     [ -f "$tpl" ] || return 1
+
+    # Usamos un delimitador alternativo | para sed y escapamos posibles conflictos
+    # Esta versión es limpia y evita duplicar líneas si la plantilla está bien formada
     sed -e "s|{{EMPRESA}}|$EMPRESA|g" \
         -e "s|{{SERVICIO}}|$SERVICIO|g" \
         -e "s|{{PUERTO}}|$PUERTO|g" \
-        -e "s|{{RUTA_DATOS}}|$DATA_DIR/$EMPRESA|g" \
+        -e "s|{{RUTA_DATOS}}|$DOCKER_DATA_DIR/$EMPRESA|g" \
         -e "s|{{DB_NAME}}|$DB_NAME|g" \
         -e "s|{{DB_USER}}|$DB_USER|g" \
         -e "s|{{DB_PASSWORD}}|$DB_PASSWORD|g" \
@@ -121,8 +124,6 @@ cargar_o_generar_credenciales() {
         return 0
     fi
     
-    # Si es un servicio con dependencia, buscar credenciales de la BD
-    # (simplificación: si existe credenciales de mariadb, usarlas)
     local db_cred_file="$CREDENTIALS_DIR/${empresa}.mariadb"
     if [ -f "$db_cred_file" ]; then
         log_info "Usando credenciales de base de datos existente"
@@ -131,14 +132,12 @@ cargar_o_generar_credenciales() {
         DB_USER=$(echo "$json" | jq -r .db_user)
         DB_PASSWORD=$(echo "$json" | jq -r .db_password)
         DB_ROOT_PASSWORD=$(echo "$json" | jq -r .db_root_password)
-        # Mantener otros valores únicos del servicio
         ADMIN_USER="admin"
         ADMIN_PASSWORD=$(generar_password 16)
         JWT_SECRET=$(generar_token 32)
         return 0
     fi
 
-    # Generar nuevas
     log_info "Generando nuevas credenciales..."
     DB_NAME="${EMPRESA}_db"
     DB_USER="${EMPRESA}_user"
@@ -261,10 +260,6 @@ cd "$SERVICIO_DIR" || exit 1
 if ! docker compose up -d 2>&1 | tee -a "$LOG_FILE"; then
     log_failed "Error en docker compose up"
     exit 1
-fi
-
-if ! wait_container_healthy "${EMPRESA}_${SERVICIO}" 60; then
-    log_warn "Contenedor no llegó a healthy state (continuando...)"
 fi
 
 # =====================================================

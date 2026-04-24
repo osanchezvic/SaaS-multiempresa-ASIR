@@ -57,7 +57,7 @@ wait_container_healthy() {
             return 1
         fi
         
-        if docker ps | grep -q "$container"; then
+        if [ "$(docker inspect -f '{{.State.Running}}' "$container" 2>/dev/null)" == "true" ]; then
             return 0
         fi
         

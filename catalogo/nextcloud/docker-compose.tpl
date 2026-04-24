@@ -1,7 +1,7 @@
 services:
   nextcloud:
     container_name: {{EMPRESA}}_nextcloud
-    image: nextcloud:28.0.0
+    image: nextcloud:latest
     restart: always
     environment:
       - MYSQL_HOST={{EMPRESA}}_mariadb

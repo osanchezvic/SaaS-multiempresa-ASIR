@@ -14,8 +14,16 @@ db_register_empresa() {
         echo "$empresa" >> "$DB_DIR/empresas.txt"
     fi
 
+    # Determinar host de BD
+    local db_host="localhost"
+    local db_port="3307"
+    if [ -f /.dockerenv ]; then
+        db_host="infra_users_db"
+        db_port="3306"
+    fi
+
     # Registrar en MariaDB infra si está disponible
-    mysql -h localhost -P 3307 -u users_user -pusers_pass users_db -e "
+    mysql -h "$db_host" -P "$db_port" -u users_user -pusers_pass users_db -e "
         INSERT IGNORE INTO empresas (nombre) VALUES ('$empresa');
     " 2>/dev/null || true
 }
@@ -33,12 +41,20 @@ db_register_servicio() {
         echo "$empresa:$servicio:$puerto:running" >> "$DB_DIR/servicios.txt"
     fi
 
+    # Determinar host de BD
+    local db_host="localhost"
+    local db_port="3307"
+    if [ -f /.dockerenv ]; then
+        db_host="infra_users_db"
+        db_port="3306"
+    fi
+
     # Registrar en MariaDB infra si está disponible
     # Primero obtener ID de empresa
-    local emp_id=$(mysql -h localhost -P 3307 -u users_user -pusers_pass users_db -N -s -e "SELECT id FROM empresas WHERE nombre='$empresa';" 2>/dev/null || echo "")
+    local emp_id=$(mysql -h "$db_host" -P "$db_port" -u users_user -pusers_pass users_db -N -s -e "SELECT id FROM empresas WHERE nombre='$empresa';" 2>/dev/null || echo "")
     
     if [ -n "$emp_id" ]; then
-        mysql -h localhost -P 3307 -u users_user -pusers_pass users_db -e "
+        mysql -h "$db_host" -P "$db_port" -u users_user -pusers_pass users_db -e "
             INSERT INTO servicios_contratados (empresa_id, nombre_servicio, puerto, tipo, estado) 
             VALUES ($emp_id, '$servicio', $puerto, 'saas', 'activo')
             ON DUPLICATE KEY UPDATE puerto=$puerto, estado='activo';
@@ -87,11 +103,19 @@ crear_usuario_admin() {
         hash_pass=$(echo -n "$admin_pass" | openssl dgst -md5 | cut -d' ' -f2)
     fi
     
+    # Determinar host de BD
+    local db_host="localhost"
+    local db_port="3307"
+    if [ -f /.dockerenv ]; then
+        db_host="infra_users_db"
+        db_port="3306"
+    fi
+
     # Insertar en BD infra_users_db
     # Mapeamos 'admin' a es_admin=1 si es necesario, o lo dejamos para la lógica del dashboard
-    mysql -h localhost -P 3307 -u users_user -pusers_pass users_db -e "
-        INSERT INTO usuarios (empresa, usuario, hash_password, rol, es_admin) 
-        VALUES ('$empresa', '$admin_user', '$hash_pass', 'admin', 0) 
+    mysql -h "$db_host" -P "$db_port" -u users_user -pusers_pass users_db -e "
+        INSERT INTO usuarios (empresa_id, empresa, usuario, hash_password, rol, es_admin) 
+        VALUES ((SELECT id FROM empresas WHERE nombre='$empresa'), '$empresa', '$admin_user', '$hash_pass', 'admin', 0) 
         ON DUPLICATE KEY UPDATE hash_password='$hash_pass';
     " 2>/dev/null || log_warn "No se pudo insertar usuario admin en BD infra (BD no disponible?)"
 }

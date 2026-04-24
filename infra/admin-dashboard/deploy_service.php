@@ -34,11 +34,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
     curl_close($ch);
     
-    if ($http_code == 200) {
-        echo "Despliegue iniciado correctamente.";
+    $data = json_decode($response, true);
+    
+    echo "<!DOCTYPE html><html><head><title>Estado de Despliegue</title>";
+    echo "<style>body{font-family:sans-serif; padding:50px; background:#f8fafc; color:#333;} .card{background:white; padding:30px; border-radius:15px; box-shadow:0 4px 6px rgba(0,0,0,0.1); max-width:800px; margin:auto;} .success{color:#166534; background:#dcfce7; padding:15px; border-radius:10px;} .error{color:#991b1b; background:#fee2e2; padding:15px; border-radius:10px;} pre{background:#1e293b; color:#f8fafc; padding:15px; border-radius:8px; overflow-x:auto; font-size:12px;}</style></head><body>";
+    echo "<div class='card'>";
+    
+    if ($http_code == 200 && isset($data['status']) && $data['status'] == 'success') {
+        echo "<h2 class='success'>✅ Despliegue completado con éxito</h2>";
+        echo "<p>El servicio <strong>$servicio</strong> para la empresa <strong>$empresa</strong> ya está operativo.</p>";
     } else {
-        echo "Error en el despliegue. Código: " . $http_code;
+        echo "<h2 class='error'>❌ Error en el despliegue</h2>";
+        if (isset($data['stderr']) && !empty($data['stderr'])) {
+            echo "<p>Detalles del error:</p>";
+            echo "<pre>" . htmlspecialchars($data['stderr']) . "</pre>";
+        } elseif (isset($data['detail'])) {
+            echo "<p>Error de la API: " . htmlspecialchars($data['detail']) . "</p>";
+        } else {
+            echo "<p>Código de respuesta: $http_code</p>";
+        }
     }
-    echo "<br><a href='index.php'>Volver al dashboard</a>";
+    
+    echo "<br><a href='index.php' style='display:inline-block; padding:10px 20px; background:#4f46e5; color:white; text-decoration:none; border-radius:8px;'>Volver al Dashboard</a>";
+    echo "</div></body></html>";
 }
 ?>

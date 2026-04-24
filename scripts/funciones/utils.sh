@@ -132,7 +132,7 @@ backup_servicio() {
     local empresa="$1"
     local servicio="$2"
     local servicio_dir="$DATA_DIR/$empresa/$servicio"
-    local backup_dir="/var/backups/iaas/$empresa/$servicio"
+    local backup_dir="$PROYECTO_ROOT/backups/$empresa/$servicio"
     local timestamp=$(date +%Y%m%d%H%M%S)
     
     if [ ! -d "$servicio_dir" ]; then

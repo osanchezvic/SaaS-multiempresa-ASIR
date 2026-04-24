@@ -1,63 +1,67 @@
-# Plataforma SaaS Multiempresa (ASIR)
+# 🚀 Plataforma SaaS Multiempresa (CloudControl ASIR)
 
-Plataforma de gestión SaaS automatizada y segura diseñada para orquestar servicios basados en Docker en entornos multiempresa. El sistema permite el despliegue centralizado, la configuración, y la gestión de acceso basada en roles (RBAC) para múltiples inquilinos.
+Plataforma de gestión SaaS automatizada y profesional diseñada para orquestar servicios basados en Docker en entornos multiempresa. Este sistema permite el despliegue centralizado, la observabilidad avanzada y la gestión de acceso segura para múltiples inquilinos.
 
-## Arquitectura y Seguridad
-El sistema se ha reforzado para cumplir con estándares profesionales de seguridad y gestión de infraestructuras:
+## 🏗️ Arquitectura y Seguridad de Alto Nivel
 
-- **RBAC (Control de Acceso basado en Roles):** Integración de base de datos MariaDB para gestionar usuarios, empresas (tenants) y permisos de administrador.
-- **Seguridad en Capas:**
-  - **Authelia:** Implementación de autenticación de dos factores (2FA) y control de acceso.
-  - **Hardening:** Uso de archivos `.env` para secretos, CSRF tokens en el dashboard, y escaneo de vulnerabilidades mediante **Trivy**.
-  - **Proxy Inverso:** Nginx Proxy Manager gestionando el tráfico y certificados SSL.
-- **API-driven Infrastructure:** Servicio de API (FastAPI) para automatizar el ciclo de vida de despliegue mediante peticiones seguras.
-- **Monitorización:** Stack completo con Prometheus, Grafana y Loki.
+El sistema ha sido diseñado bajo principios de **Security by Design** y **Observabilidad Total**:
 
-## Estructura del Proyecto
+- **Aislamiento Multi-Tenant:** Cada empresa cuenta con su propio ecosistema de directorios, redes Docker aisladas y gestión de credenciales independiente.
+- **Blindaje de Código:**
+  - **Protección SQL:** Uso estricto de sentencias preparadas (Prepared Statements) para prevenir inyecciones.
+  - **Seguridad Web:** Protección contra ataques CSRF mediante tokens de sesión validados en cada acción crítica.
+- **Gestión de Infraestructura (IaC):**
+  - **API-driven:** Orquestación mediante una API segura (FastAPI) que actúa como puente entre la UI y los scripts de sistema.
+  - **Hardening:** Permisos restrictivos en archivos de configuración (600), rotación de secretos y eliminación de credenciales por defecto.
+- **Monitorización Proactiva:**
+  - **Alertmanager:** Sistema de alertas crítico integrado con **Telegram** para notificaciones en tiempo real.
+  - **Stack de Métricas:** Prometheus y Grafana para el control exhaustivo de recursos.
+
+## 📁 Estructura del Proyecto
 
 ```text
 /
-├── catalogo/        # Definiciones de servicios (templates docker-compose)
-├── infra/           # Infraestructura global (proxy, api, authelia, monitorización)
-├── scripts/         # Lógica central de orquestación
-│   ├── funciones/   # Módulos bash reutilizables
-│   └── deploy.sh    # Script principal con pre-flight security scan
-├── docs/            # Documentación técnica y guía de defensa
-└── README.md        # Este archivo
+├── catalogo/        # Plantillas (.tpl) de servicios listos para SaaS
+├── infra/           # Servicios globales (Proxy, API, Monitorización, Dashboards)
+├── scripts/         # Motor de orquestación en Bash
+│   ├── funciones/   # Módulos de lógica (DB, Puertos, Seguridad)
+│   └── deploy.sh    # Script inteligente de despliegue con validación de dependencias
+├── data/            # Almacenamiento persistente aislado por empresa
+├── docs/            # Diagramas de arquitectura y guías técnicas
+└── README.md        # Documentación principal
 ```
 
-## Características Principales
+## ✨ Características del "10" (Valor Añadido)
 
-1. **RBAC y Gestión Multiempresa:** Diferenciación entre administradores globales y administradores de empresa (tenants) mediante base de datos relacional.
-2. **API de Despliegue:** API segura para disparar el despliegue (`POST /deploy/<company>/<service>`) reemplazando ejecuciones manuales.
-3. **Escaneo de Vulnerabilidades (Trivy):** Paso de seguridad obligatorio integrado en `deploy.sh` que aborta despliegues con vulnerabilidades críticas.
-4. **Despliegue Automatizado:** Resolución de dependencias entre contenedores, aislamiento de redes y gestión dinámica de puertos.
-5. **Backups Automáticos:** Protección de datos integrada antes de operaciones destructivas.
+1. **Orquestador con Dependencias:** El sistema detecta automáticamente si un servicio (ej. WordPress) requiere otro (ej. MariaDB) y lo despliega de forma autónoma.
+2. **Dashboard Admin Moderno:** Interfaz profesional rediseñada con Glassmorphism para la gestión visual de despliegues y estadísticas.
+3. **Portal Dashy:** Punto de entrada visual que monitoriza la salud de los servicios en tiempo real con indicadores de estado.
+4. **Sistema de Alertas:** Notificaciones automáticas al móvil si un contenedor cae o si hay un consumo excesivo de CPU/RAM.
+5. **Backups Garantizados:** Script de respaldo mejorado que asegura la integridad total de los volúmenes antes de cualquier cambio.
 
-## Uso
+## 🖥️ Acceso a la Plataforma (Localhost)
 
-### Despliegue de Servicios
-El despliegue se puede realizar mediante CLI o a través del nuevo Panel de Administración que interactúa con la API interna.
+| Servicio | URL | Descripción |
+| :--- | :--- | :--- |
+| **Admin Dashboard** | `http://localhost:8000` | Gestión de despliegues y empresas. |
+| **Portal Global** | `http://localhost:4000` | Estado visual de toda la infraestructura. |
+| **Monitorización** | `http://localhost:3000` | Métricas avanzadas en Grafana. |
+| **API Control** | `http://localhost:8001` | Backend de automatización. |
+
+## 🛠️ Comandos Rápidos
 
 ```bash
+# Desplegar un servicio para una empresa (CLI)
 ./scripts/deploy.sh <empresa> <servicio>
+
+# Destruir con backup automático
+./scripts/destroy.sh <empresa> <servicio>
+
+# Levantar infraestructura base
+cd infra && docker compose up -d
 ```
 
-### Gestión de Servicios
-| Comando | Descripción |
-| :--- | :--- |
-| `./scripts/deploy.sh` | Despliega servicio (con pre-flight scan de Trivy). |
-| `./scripts/list.sh` | Lista servicios desplegados por empresa. |
-| `./scripts/get-credentials.sh` | Recupera credenciales seguras (formato JSON). |
-| `./scripts/destroy.sh` | Elimina servicios con backup previo. |
-
-## Seguridad
-- **Secretos:** Nunca almacenar contraseñas en el código fuente. Utilizar variables de entorno en el archivo `.env`.
-- **RBAC:** La base de datos `users_db` controla el acceso. Asegurar que las contraseñas están correctamente hasheadas (bcrypt).
-- **API:** El token de la API (`API_TOKEN`) debe mantenerse privado y rotado periódicamente.
-
-## Requisitos
-- Docker Engine 20+
-- Docker Compose v2
-- Trivy (para escaneo de imágenes)
-- MariaDB
+## 🔒 Seguridad Aplicada
+- **RBAC:** Control de acceso mediante `users_db` (MariaDB) con hashes Bcrypt.
+- **Authelia:** Autenticación centralizada y portal de seguridad.
+- **Fail2ban:** Protección contra ataques de fuerza bruta en los servicios expuestos.

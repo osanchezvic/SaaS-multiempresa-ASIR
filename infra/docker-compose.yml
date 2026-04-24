@@ -164,6 +164,7 @@ services:
     environment:
       - API_TOKEN=${API_TOKEN:-supersecrettoken}
       - PROJECT_ROOT=/app
+      - HOST_PROJECT_ROOT=/home/oscar/SaaS-multiempresa-ASIR
     ports:
       - "8001:8000"
 

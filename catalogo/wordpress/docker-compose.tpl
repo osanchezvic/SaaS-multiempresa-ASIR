@@ -1,6 +1,6 @@
 services:
   {{EMPRESA}}_wordpress:
-    image: wordpress:6.4.2
+    image: wordpress:latest
     container_name: {{EMPRESA}}_wordpress
     restart: always
     environment:

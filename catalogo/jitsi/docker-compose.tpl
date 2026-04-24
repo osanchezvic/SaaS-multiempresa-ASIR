@@ -1,6 +1,6 @@
 services:
   {{EMPRESA}}_jitsi_web:
-    image: jitsi/web:latest
+    image: jitsi/web:stable
     container_name: {{EMPRESA}}_jitsi_web
     restart: always
     ports:
@@ -14,14 +14,14 @@ services:
       - XMPP_MUC_DOMAIN=muc.meet.jitsi
       - JICOFO_COMPONENT_SECRET={{JWT_SECRET}}
       - JICOFO_AUTH_USER=focus
-      - JVB_AUTH_USER=jvb
+      - JVB_AUTH_USER=focus
     networks:
       - {{EMPRESA}}_net
     depends_on:
       - {{EMPRESA}}_jitsi_prosody
 
   {{EMPRESA}}_jitsi_prosody:
-    image: jitsi/prosody:latest
+    image: jitsi/prosody:stable
     container_name: {{EMPRESA}}_jitsi_prosody
     restart: always
     environment:
@@ -31,14 +31,14 @@ services:
       - XMPP_MUC_DOMAIN=muc.meet.jitsi
       - JICOFO_COMPONENT_SECRET={{JWT_SECRET}}
       - JICOFO_AUTH_USER=focus
-      - JVB_AUTH_USER=jvb
+      - JVB_AUTH_USER=focus
       - JVB_AUTH_PASSWORD={{DB_PASSWORD}}
       - JICOFO_AUTH_PASSWORD={{DB_PASSWORD}}
     networks:
       - {{EMPRESA}}_net
 
   {{EMPRESA}}_jitsi_jicofo:
-    image: jitsi/jicofo:latest
+    image: jitsi/jicofo:stable
     container_name: {{EMPRESA}}_jitsi_jicofo
     restart: always
     environment:
@@ -54,14 +54,14 @@ services:
       - {{EMPRESA}}_jitsi_prosody
 
   {{EMPRESA}}_jitsi_jvb:
-    image: jitsi/jvb:latest
+    image: jitsi/jvb:stable
     container_name: {{EMPRESA}}_jitsi_jvb
     restart: always
     environment:
       - XMPP_DOMAIN=meet.jitsi
       - XMPP_AUTH_DOMAIN=auth.meet.jitsi
       - XMPP_SERVER={{EMPRESA}}_jitsi_prosody
-      - JVB_AUTH_USER=jvb
+      - JVB_AUTH_USER=focus
       - JVB_AUTH_PASSWORD={{DB_PASSWORD}}
       - JVB_STUN_SERVERS=stun.l.google.com:19302,stun1.l.google.com:19302
     networks:

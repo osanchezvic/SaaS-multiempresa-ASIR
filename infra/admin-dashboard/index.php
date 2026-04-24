@@ -399,7 +399,8 @@ while ($row = mysqli_fetch_assoc($empresas_result)) {
                 <p style="font-size: 0.875rem; font-weight: 700;"><?php echo htmlspecialchars($_SESSION['admin_id']); ?></p>
             </div>
             <a href="?logout=1" class="btn-logout">Salir</a>
-        </header>
+        </div>
+    </header>
 
     <main class="container">
         <section class="stats-grid">

@@ -136,17 +136,17 @@ validar_post_deploy() {
     echo_info "Validaciones post-deploy en curso..."
     
     # Verificar que contenedor existe
-    if ! docker ps -a | grep -q "$container"; then
+    if ! docker inspect "$container" >/dev/null 2>&1; then
         echo_error "Contenedor no encontrado: $container"
         return 1
     fi
     
     # Esperar a que esté running
-    local max_intentos=30
+    local max_intentos=10
     local intento=0
     
     while [ $intento -lt $max_intentos ]; do
-        if docker ps | grep -q "$container"; then
+        if [ "$(docker inspect -f '{{.State.Running}}' "$container" 2>/dev/null)" == "true" ]; then
             echo_info "Contenedor corriendo: $container"
             return 0
         fi
@@ -156,7 +156,7 @@ validar_post_deploy() {
         sleep 2
     done
     
-    echo_error "Timeout esperando contenedor"
+    echo_error "Timeout esperando contenedor $container"
     return 1
 }
 
