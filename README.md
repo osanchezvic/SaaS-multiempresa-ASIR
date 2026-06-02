@@ -22,7 +22,7 @@ TenSaaS es una plataforma de orquestación Multi-Tenant diseñada para que peque
 El sistema garantiza tres principios fundamentales:
  
 - **Soberanía del dato**: los datos de cada empresa residen en rutas físicas separadas del servidor y nunca se mezclan entre tenants.
-- **Zero-Exposure**: el servidor no expone ningún puerto al exterior. Toda la conectividad a internet se establece mediante un túnel cifrado saliente de Cloudflare, eliminando la superficie de ataque perimetral.
+- **Zero-Exposure**: el host no publica ningún puerto público. Toda la conectividad entrante llega por un túnel cifrado saliente de Cloudflare, que alcanza el proxy inverso a través de la red interna de Docker (sin mapear puertos al host). El único puerto enlazado es el panel de administración del proxy, restringido a `127.0.0.1` y accesible solo por túnel SSH.
 - **Automatización completa**: desde la validación de la petición hasta el registro del proxy y la emisión del certificado SSL, el despliegue de un nuevo servicio es un único comando.
 ---
  
@@ -169,7 +169,7 @@ Servicios que corren de forma permanente y son compartidos por todos los tenants
  
 ### Exposición y Seguridad Perimetral
  
-- **Cloudflare Tunnel (`cloudflared`)**: el servidor establece una conexión saliente cifrada hacia Cloudflare. No hay ningún puerto abierto en el firewall hacia internet. La superficie de ataque perimetral es cero.
+- **Cloudflare Tunnel (`cloudflared`)**: el servidor establece una conexión saliente cifrada hacia Cloudflare y entrega el tráfico al proxy inverso por la red interna de Docker (`infra_net`). No hay ningún puerto público publicado en el host; la superficie de ataque perimetral es cero.
 - **Nginx Proxy Manager (NPM)**: proxy inverso que gestiona el ruteo de subdominios y la emisión automática de certificados SSL (Let's Encrypt vía Cloudflare DNS).
 - **Authelia**: capa de Single Sign-On (SSO) con autenticación de dos factores (2FA/TOTP) integrada con NPM para proteger todos los paneles de gestión internos.
 ### Gestión y Operaciones
@@ -200,7 +200,7 @@ El aislamiento entre empresas se implementa en tres capas independientes:
  
 Se ha aplicado una política de **reducción de superficie de ataque** en todas las capas:
  
-- **Zero-Exposure**: UFW y fail2ban se eliminaron del host al delegar la protección perimetral completamente al túnel de Cloudflare. Sin puertos abiertos, no hay nada que filtrar.
+- **Zero-Exposure**: UFW y fail2ban se eliminaron del host al delegar la protección perimetral completamente al túnel de Cloudflare. El host no publica puertos públicos (el proxy inverso recibe el tráfico del túnel por la red interna de Docker), por lo que no hay superficie perimetral que filtrar. El panel de administración del proxy queda enlazado a `127.0.0.1`, accesible únicamente mediante `ssh -L 8181:localhost:81 usuario@host`.
 - **SSH sin contraseña**: acceso al host limitado estrictamente a autenticación por clave pública. Las contraseñas SSH están desactivadas.
 - **Credenciales únicas**: cada despliegue genera contraseñas aleatorias distintas, almacenadas en JSON con permisos `600`.
 - **Escaneo de imágenes (experimental)**: integración con [Trivy](https://github.com/aquasecurity/trivy) en `seguridad.sh` para analizar vulnerabilidades conocidas en las imágenes del catálogo antes de desplegar.

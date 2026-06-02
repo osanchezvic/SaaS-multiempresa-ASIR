@@ -107,10 +107,14 @@ services:
     image: "jc21/nginx-proxy-manager:latest"
     container_name: nginx_proxy_manager
     restart: unless-stopped
+    # Zero-Exposure: el host NO publica puertos públicos. cloudflared alcanza
+    # NPM por DNS de la red Docker (infra_net). El panel admin (81) queda
+    # enlazado solo a 127.0.0.1 (acceso vía túnel SSH).
     ports:
-      - '80:80'
-      - '443:443'
-      - '81:81' # Panel de administración NPM
+      - '127.0.0.1:81:81'
+    expose:
+      - '80'
+      - '443'
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:81"]
       interval: 30s
