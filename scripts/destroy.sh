@@ -67,21 +67,17 @@ else
     echo_warn "Error parando contenedores"
 fi
 
-# Eliminar datos
-echo_info "Eliminando datos de $SERVICIO_DIR..."
-if rm -rf "$SERVICIO_DIR"; then
-    echo_info "Datos eliminados"
-else
-    echo_error "Error al eliminar datos"
-    exit 1
-fi
+# Limpiar Proxy NPM
+source "$SCRIPT_PATH/funciones/npm.sh"
+echo_info "Eliminando configuración de Proxy NPM..."
+TOKEN=$(npm_get_token || echo "")
+SUBDOMAIN="${SERVICIO}-${EMPRESA}.tensaas.es"
 
-# Eliminar red si está vacía
-if docker network inspect "$RED" >/dev/null 2>&1; then
-    NUM_CONT=$(docker network inspect "$RED" -f '{{len .Containers}}' 2>/dev/null || echo 0)
-    if [ "$NUM_CONT" -eq 0 ]; then
-        echo_info "Eliminando red: $RED"
-        docker network rm "$RED" 2>/dev/null || echo_warn "No se pudo eliminar red"
+if [ -n "$TOKEN" ]; then
+    if npm_delete_proxy "$SUBDOMAIN" "$TOKEN"; then
+        echo_info "Proxy host eliminado: $SUBDOMAIN"
+    else
+        echo_warn "No se encontró proxy host para $SUBDOMAIN o error al eliminar"
     fi
 fi
 
@@ -89,6 +85,17 @@ fi
 if [ -f "$DB_DIR/servicios.txt" ]; then
     grep -v "^$EMPRESA:$SERVICIO:" "$DB_DIR/servicios.txt" > "$DB_DIR/servicios.txt.tmp" || true
     mv "$DB_DIR/servicios.txt.tmp" "$DB_DIR/servicios.txt"
+fi
+db_unregister_servicio "$EMPRESA" "$SERVICIO"
+
+# Eliminar datos
+echo_info "Eliminando datos de $SERVICIO_DIR..."
+if rm -rf "$SERVICIO_DIR" 2>/dev/null; then
+    echo_info "Datos eliminados"
+else
+    echo_warn "No se pudieron eliminar todos los datos de $SERVICIO_DIR (posiblemente por permisos de Docker)"
+    # Intentar limpiar lo básico al menos
+    find "$SERVICIO_DIR" -maxdepth 1 -not -path "$SERVICIO_DIR" -exec rm -rf {} + 2>/dev/null || true
 fi
 
 # Limpiar credenciales

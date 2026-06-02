@@ -44,9 +44,26 @@ error_page 401 =302 /authelia/?rd=$target_url;
             \"forward_host\": \"${forward_host}\",
             \"forward_port\": ${forward_port},
             \"certificate_id\": ${cert_id},
-            \"ssl_forced\": true,
+            \"ssl_forced\": false,
             \"block_exploits\": true,
             \"advanced_config\": \"$(echo "$advanced_config" | sed ':a;N;$!ba;s/\n/\\n/g')\",
             \"enabled\": true
         }"
+}
+
+npm_delete_proxy() {
+    local domain=$1
+    local token=$2
+
+    # Buscar el ID del proxy host por su dominio
+    local id=$(curl -s -X GET "${NPM_URL}/api/nginx/proxy-hosts" \
+        -H "Authorization: Bearer ${token}" \
+        | jq -r ".[] | select(.domain_names[] == \"${domain}\") | .id" | head -n 1)
+
+    if [ -n "$id" ] && [ "$id" != "null" ]; then
+        curl -s -X DELETE "${NPM_URL}/api/nginx/proxy-hosts/${id}" \
+            -H "Authorization: Bearer ${token}"
+        return 0
+    fi
+    return 1
 }

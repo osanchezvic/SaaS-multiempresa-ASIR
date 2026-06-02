@@ -164,6 +164,7 @@ $total_admins    = mysqli_fetch_row(mysqli_query($conn, "SELECT COUNT(*) FROM us
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 
 :root{
+  color-scheme: dark;
   --bg:#07090f;--surface:#0d1321;--card:#111827;
   --border:rgba(255,255,255,0.07);--border-hi:rgba(255,255,255,0.13);
   --accent:#38bdf8;--accent-dim:rgba(56,189,248,0.1);
@@ -172,6 +173,7 @@ $total_admins    = mysqli_fetch_row(mysqli_query($conn, "SELECT COUNT(*) FROM us
   --fh:'Syne',sans-serif;--fb:'DM Sans',sans-serif;--fm:'JetBrains Mono',monospace;
 }
 .light{
+  color-scheme: light;
   --bg:#f1f5f9;--surface:#fff;--card:#f8fafc;
   --border:rgba(0,0,0,0.07);--border-hi:rgba(0,0,0,0.13);
   --accent:#0284c7;--accent-dim:rgba(2,132,199,0.09);
@@ -256,7 +258,10 @@ body::before{content:'';position:fixed;inset:0;
 .light .field-input{background:rgba(0,0,0,.04)}
 .field-input:focus{border-color:rgba(56,189,248,.4);background:rgba(56,189,248,.03)}
 .field-input::placeholder{color:var(--muted)}
-.field-select{appearance:none;-webkit-appearance:none;cursor:pointer}
+.field-select{appearance:none;-webkit-appearance:none;cursor:pointer;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' viewBox='0 0 24 24'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 10px center;background-size:14px;padding-right:32px!important}
+.field-select option{background:var(--surface);color:var(--text)}
 .toggle-wrap{display:flex;align-items:center;gap:7px;padding:8px 11px;
   background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:8px;cursor:pointer;height:36px}
 .light .toggle-wrap{background:rgba(0,0,0,.04)}
@@ -287,7 +292,10 @@ body::before{content:'';position:fixed;inset:0;
   border-radius:8px;color:var(--muted2);font-family:var(--fm);font-size:10px;
   outline:none;cursor:pointer;appearance:none;-webkit-appearance:none;
   letter-spacing:.04em;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' viewBox='0 0 24 24'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 10px center;background-size:12px;padding-right:28px!important;
 }
+.filter-select option{background:var(--surface);color:var(--text)}
 .filter-count{font-family:var(--fm);font-size:9px;color:var(--muted);margin-left:auto;white-space:nowrap}
 
 /* ── TABLE ───────────────────────────────────────────────── */
@@ -361,10 +369,8 @@ body::before{content:'';position:fixed;inset:0;
 <header class="topbar">
   <div style="display:flex;align-items:center;gap:.875rem">
     <a href="index.php" class="tb-brand" style="text-decoration:none;color:inherit">
-      <div class="tb-ico">
-        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
-      </div>
-      <span class="tb-name">TenSaaS</span>
+      <img src="images/logo3d.png" alt="TenSaaS" style="height: 32px; width: auto; object-fit: contain;">
+      <span class="tb-name">Ten<span style="color: #00cc58">SaaS</span></span>
     </a>
     <div class="tb-sep"></div>
     <span class="page-crumb">GESTIÓN DE USUARIOS</span>
@@ -595,7 +601,6 @@ function updateIcons(light){
   document.getElementById('sun-icon')?.classList.toggle('hidden',!light);
   document.getElementById('moon-icon')?.classList.toggle('hidden',light);
 }
-.hidden{display:none!important}
 applyTheme();
 </script>
 <style>.hidden{display:none!important}</style>

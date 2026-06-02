@@ -107,6 +107,7 @@ cargar_o_generar_credenciales() {
     local servicio="$2"
     local cred_file="$CREDENTIALS_DIR/${empresa}.${servicio}"
     
+    # Si ya existen credenciales para este servicio específico, cargarlas
     if [ -f "$cred_file" ]; then
         log_info "Cargando credenciales existentes: $cred_file"
         local json=$(cat "$cred_file")
@@ -121,11 +122,23 @@ cargar_o_generar_credenciales() {
         return 0
     fi
     
-    log_info "Generando nuevas credenciales..."
-    DB_NAME="${EMPRESA}_db"
-    DB_USER="${EMPRESA}_user"
-    DB_PASSWORD=$(generar_password 16)
-    DB_ROOT_PASSWORD=$(generar_password 16)
+    # Si no es MariaDB, intentar heredar credenciales de MariaDB de la empresa
+    if [ "$servicio" != "mariadb" ] && [ -f "$CREDENTIALS_DIR/${empresa}.mariadb" ]; then
+        log_info "Heredando credenciales de MariaDB para $empresa..."
+        local db_json=$(cat "$CREDENTIALS_DIR/${empresa}.mariadb")
+        DB_NAME=$(echo "$db_json" | jq -r .db_name)
+        DB_USER=$(echo "$db_json" | jq -r .db_user)
+        DB_PASSWORD=$(echo "$db_json" | jq -r .db_password)
+        DB_ROOT_PASSWORD=$(echo "$db_json" | jq -r .db_root_password)
+    else
+        log_info "Generando nuevos valores de Base de Datos..."
+        DB_NAME="${EMPRESA}_db"
+        DB_USER="${EMPRESA}_user"
+        DB_PASSWORD=$(generar_password 16)
+        DB_ROOT_PASSWORD=$(generar_password 16)
+    fi
+
+    log_info "Generando credenciales de aplicación..."
     ADMIN_USER="admin_${EMPRESA}" # Fix collision
     ADMIN_PASSWORD=$(generar_password 16)
     JWT_SECRET=$(generar_token 32)
@@ -187,16 +200,18 @@ procesar_template "$CATALOGO_SERVICIO/env.tpl" "$SERVICIO_DIR/.env" || true
 
 RED="${EMPRESA}_net"
 if ! docker network inspect "$RED" >/dev/null 2>&1; then
+    log_info "Creando red aislada para la empresa: $RED"
     docker network create "$RED" --driver bridge >/dev/null
 fi
 
-log_info "Levantando contenedores..."
+log_info "Levantando contenedores de $SERVICIO..."
 cd "$SERVICIO_DIR"
 docker compose up -d 2>&1 | tee -a "$LOG_FILE"
 
 # Conectar a la red global de proxy para exposición segura
 if [ "$(docker network ls -q -f name=infra_proxy_net)" ]; then
     CONTENEDOR_PRINCIPAL="${EMPRESA}_${SERVICIO}"
+    log_info "Exponiendo contenedor $CONTENEDOR_PRINCIPAL al proxy..."
     # Intentar conectar el contenedor (si no tiene -1, -2 al final)
     docker network connect infra_proxy_net "$CONTENEDOR_PRINCIPAL" 2>/dev/null || \
     docker network connect infra_proxy_net "${CONTENEDOR_PRINCIPAL}-1" 2>/dev/null || true

@@ -264,6 +264,7 @@ $hues = [199, 142, 265, 25, 340, 39, 180, 310];
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 
 :root{
+  color-scheme: dark;
   --bg:#07090f;
   --surface:#0d1321;
   --card:#111827;
@@ -284,6 +285,7 @@ $hues = [199, 142, 265, 25, 340, 39, 180, 310];
 }
 
 .light{
+  color-scheme: light;
   --bg:#f1f5f9;--surface:#ffffff;--card:#f8fafc;
   --border:rgba(0,0,0,0.07);--border-hi:rgba(0,0,0,0.13);
   --accent:#0284c7;--accent-dim:rgba(2,132,199,0.09);
@@ -529,7 +531,10 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
   border:1px solid var(--border-hi);border-radius:8px;color:var(--text);
   font-family:var(--fb);font-size:13px;outline:none;margin-bottom:.875rem;cursor:pointer;
   appearance:none;-webkit-appearance:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' viewBox='0 0 24 24'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 10px center;background-size:14px;padding-right:32px!important;
 }
+.modal select option{background:var(--surface);color:var(--text)}
 .light .modal select{background:rgba(0,0,0,.04)}
 .modal-footer{display:flex;gap:7px}
 .btn-ok{flex:1;padding:9px;background:var(--accent);border:none;border-radius:8px;color:#050d18;font-family:var(--fh);font-size:13px;font-weight:700;cursor:pointer;transition:opacity .15s}
