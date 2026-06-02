@@ -35,6 +35,7 @@ CREATE TABLE IF NOT EXISTS servicios_contratados (
     url_admin VARCHAR(255),
     estado ENUM('activo', 'inactivo', 'eliminado') DEFAULT 'activo',
     fecha_contratacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE KEY uq_empresa_servicio (empresa_id, nombre_servicio),
     FOREIGN KEY (empresa_id) REFERENCES empresas(id) ON DELETE CASCADE
 );
 

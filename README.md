@@ -87,6 +87,7 @@ El sistema garantiza tres principios fundamentales:
 │   ├── list.sh                # Listado de servicios activos
 │   ├── get-credentials.sh     # Recuperación de credenciales
 │   ├── catalogo-deps.sh       # Resolución de dependencias
+│   ├── sync.sh                # Reconciliación del registro con el estado real de Docker
 │   ├── config.env             # Configuración global del motor
 │   └── funciones/             # Módulos Bash reutilizables
 │       ├── npm.sh             # Driver API REST de Nginx Proxy Manager
@@ -127,6 +128,26 @@ Cada llamada a `deploy.sh` ejecuta el siguiente pipeline de forma atómica (prot
 8. REGISTRO            db.sh → Persistencia en archivo .txt (velocidad)
                         y en MariaDB users_db (visibilidad del Dashboard)
 ```
+ 
+---
+ 
+## Reconciliación Automática del Estado
+ 
+El registro de servicios (`servicios.txt` + tabla `servicios_contratados`) puede desincronizarse de la realidad cuando un contenedor se detiene o elimina fuera del motor (p. ej. un `docker stop` manual o un despliegue fallido). Para garantizar que el registro y el Dashboard reflejen siempre el estado real, el motor incluye `sync.sh`:
+ 
+- Cruza cada entrada del registro con el estado real de Docker (`docker ps`).
+- **Servicio en ejecución** → se mantiene como `running` (BD: `activo`).
+- **Contenedor existente pero detenido** → se marca `stopped` (BD: `inactivo`).
+- **Contenedor inexistente** → se elimina la entrada del registro (BD: `eliminado`).
+- Genera un backup previo de `servicios.txt`, soporta modo `DRY_RUN=true` (solo lectura) y se protege con `flock`.
+ 
+La reconciliación se automatiza mediante una tarea `cron` (cada 5 minutos):
+ 
+```bash
+*/5 * * * * /ruta/TenSaaS/scripts/sync.sh >> /ruta/TenSaaS/scripts/logs/sync.log 2>&1
+```
+ 
+> La integridad del registro en MariaDB se refuerza con una clave única `(empresa_id, nombre_servicio)` en `servicios_contratados`, que impide entradas duplicadas para un mismo servicio de una empresa.
  
 ---
  
@@ -309,6 +330,7 @@ El sistema valida el nombre, resuelve dependencias, asigna puerto, procesa plant
 | `./scripts/list.sh [empresa] [formato]` | Lista servicios activos (formatos: `tabla`, `json`, `csv`) |
 | `./scripts/get-credentials.sh <empresa> <servicio>` | Muestra las credenciales de acceso de un servicio |
 | `./scripts/catalogo-deps.sh <servicio>` | Muestra el árbol de dependencias de un servicio |
+| `./scripts/sync.sh` | Reconcilia el registro (`.txt` + BD) con el estado real de Docker (`DRY_RUN=true` para simular) |
  
 ---
  

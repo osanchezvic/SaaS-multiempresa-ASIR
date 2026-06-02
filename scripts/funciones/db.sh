@@ -17,14 +17,11 @@ db_register_empresa() {
     # Determinar método de acceso a BD
     if [ -f /.dockerenv ]; then
         # Estamos dentro de un contenedor
-        mysql --skip-ssl -h infra_users_db -u users_user -p"$INFRA_DB_PASSWORD" users_db -e "INSERT IGNORE INTO empresas (nombre) VALUES ('$empresa');"
+        mysql --skip-ssl -h infra_users_db -u users_user -p"$INFRA_DB_PASSWORD" users_db -e "INSERT IGNORE INTO empresas (nombre) VALUES ('$empresa');" 2>/dev/null || true
     else
-        # Estamos en el host, intentamos docker exec primero (más fiable)
-        if docker ps | grep -q infra_users_db; then
-            docker exec infra_users_db mysql --skip-ssl -u users_user -p"$INFRA_DB_PASSWORD" users_db -e "INSERT IGNORE INTO empresas (nombre) VALUES ('$empresa');" || \
-            mysql --skip-ssl -h localhost -P 3307 -u users_user -p"$INFRA_DB_PASSWORD" users_db -e "INSERT IGNORE INTO empresas (nombre) VALUES ('$empresa');"
-        else
-            mysql --skip-ssl -h localhost -P 3307 -u users_user -p"$INFRA_DB_PASSWORD" users_db -e "INSERT IGNORE INTO empresas (nombre) VALUES ('$empresa');"
+        # Estamos en el host, usamos docker exec
+        if [ -n "$(docker ps -q -f name=infra_users_db)" ]; then
+            docker exec infra_users_db mysql --skip-ssl -u users_user -p"$INFRA_DB_PASSWORD" users_db -e "INSERT IGNORE INTO empresas (nombre) VALUES ('$empresa');" 2>/dev/null || true
         fi
     fi
 }
@@ -49,13 +46,10 @@ db_register_servicio() {
     "
 
     if [ -f /.dockerenv ]; then
-        mysql --skip-ssl -h infra_users_db -u users_user -p"$INFRA_DB_PASSWORD" users_db -e "$sql_query"
+        mysql --skip-ssl -h infra_users_db -u users_user -p"$INFRA_DB_PASSWORD" users_db -e "$sql_query" 2>/dev/null || true
     else
-        if docker ps | grep -q infra_users_db; then
-            docker exec infra_users_db mysql --skip-ssl -u users_user -p"$INFRA_DB_PASSWORD" users_db -e "$sql_query" || \
-            mysql --skip-ssl -h localhost -P 3307 -u users_user -p"$INFRA_DB_PASSWORD" users_db -e "$sql_query"
-        else
-            mysql --skip-ssl -h localhost -P 3307 -u users_user -p"$INFRA_DB_PASSWORD" users_db -e "$sql_query"
+        if [ -n "$(docker ps -q -f name=infra_users_db)" ]; then
+            docker exec infra_users_db mysql --skip-ssl -u users_user -p"$INFRA_DB_PASSWORD" users_db -e "$sql_query" 2>/dev/null || true
         fi
     fi
 }
@@ -87,6 +81,40 @@ listar_servicios() {
     fi
 }
 
+# Desregistrar servicio (marcar como eliminado)
+db_unregister_servicio() {
+    local empresa="$1"
+    local servicio="$2"
+
+    local sql_query="UPDATE servicios_contratados SET estado='eliminado' WHERE nombre_servicio='$servicio' AND empresa_id=(SELECT id FROM empresas WHERE nombre='$empresa');"
+
+    if [ -f /.dockerenv ]; then
+        mysql --skip-ssl -h infra_users_db -u users_user -p"$INFRA_DB_PASSWORD" users_db -e "$sql_query" 2>/dev/null || true
+    else
+        if [ -n "$(docker ps -q -f name=infra_users_db)" ]; then
+            docker exec infra_users_db mysql --skip-ssl -u users_user -p"$INFRA_DB_PASSWORD" users_db -e "$sql_query" 2>/dev/null || true
+        fi
+    fi
+}
+
+# Fijar el estado de un servicio en la BD (activo|inactivo|eliminado)
+# Actualiza TODAS las filas que casen empresa+servicio (la tabla puede tener duplicados).
+db_set_servicio_estado() {
+    local empresa="$1"
+    local servicio="$2"
+    local estado_db="$3"
+
+    local sql_query="UPDATE servicios_contratados SET estado='$estado_db' WHERE nombre_servicio='$servicio' AND empresa_id=(SELECT id FROM empresas WHERE nombre='$empresa');"
+
+    if [ -f /.dockerenv ]; then
+        mysql --skip-ssl -h infra_users_db -u users_user -p"$INFRA_DB_PASSWORD" users_db -e "$sql_query" 2>/dev/null || true
+    else
+        if [ -n "$(docker ps -q -f name=infra_users_db)" ]; then
+            docker exec infra_users_db mysql --skip-ssl -u users_user -p"$INFRA_DB_PASSWORD" users_db -e "$sql_query" 2>/dev/null || true
+        fi
+    fi
+}
+
 # Crear usuario admin en BD infra (para panel)
 crear_usuario_admin() {
     local empresa="$1"
@@ -110,15 +138,12 @@ crear_usuario_admin() {
     if [ -f /.dockerenv ]; then
         mysql -h infra_users_db -u users_user -p$INFRA_DB_PASSWORD users_db -e "$sql_query" 2>/dev/null || true
     else
-        if docker ps | grep -q infra_users_db; then
-            docker exec infra_users_db mysql -u users_user -p$INFRA_DB_PASSWORD users_db -e "$sql_query" 2>/dev/null || \
-            mysql -h localhost -P 3307 -u users_user -p$INFRA_DB_PASSWORD users_db -e "$sql_query" 2>/dev/null || true
-        else
-            mysql -h localhost -P 3307 -u users_user -p$INFRA_DB_PASSWORD users_db -e "$sql_query" 2>/dev/null || true
+        if [ -n "$(docker ps -q -f name=infra_users_db)" ]; then
+            docker exec infra_users_db mysql -u users_user -p$INFRA_DB_PASSWORD users_db -e "$sql_query" 2>/dev/null || true
         fi
     fi
 }
 
 # Exportar funciones
-export -f db_register_empresa db_register_servicio obtener_puerto servicio_existe listar_servicios crear_usuario_admin
+export -f db_register_empresa db_register_servicio db_unregister_servicio db_set_servicio_estado obtener_puerto servicio_existe listar_servicios crear_usuario_admin
 
