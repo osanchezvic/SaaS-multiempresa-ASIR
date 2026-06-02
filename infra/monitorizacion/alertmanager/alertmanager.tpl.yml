@@ -11,8 +11,8 @@ route:
 receivers:
 - name: 'telegram'
   telegram_configs:
-  - bot_token: '${TELEGRAM_BOT_TOKEN}'
-    chat_id: ${TELEGRAM_CHAT_ID}
+  - bot_token: '__BOT_TOKEN__'
+    chat_id: __CHAT_ID__
     send_resolved: true
     parse_mode: 'HTML'
     message: |
