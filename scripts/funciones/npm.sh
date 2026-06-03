@@ -23,16 +23,23 @@ npm_add_proxy() {
     local cert_id=$4
     local token=$5
 
+    # Nota: NO usar "satisfy any; allow 127.0.0.1;" aquí. Convertía el 401 de
+    # Authelia en un 403, impidiendo que el error_page 401 redirigiese al login.
+    # El redirect se hace con una named location @error401 (return 302), NO con
+    # "error_page 401 =302 /authelia/?rd=...": esa variante hacía un redirect
+    # INTERNO que ponía "rd=http://..." en $query_string, y el block-exploits de
+    # NPM (regla anti-SSRF "=http://") devolvía 403 cuando el túnel de Cloudflare
+    # llegaba por HTTP. La named location pone la URL en la cabecera Location de
+    # la RESPUESTA, que block-exploits no inspecciona.
+    # Las locations /authelia y @error401 se definen globalmente en
+    # data/nginx/custom/server_proxy.conf.
     local advanced_config='
-satisfy any;
-allow 127.0.0.1;
 auth_request /authelia;
-auth_request_set $target_url $scheme://$http_host$request_uri;
 auth_request_set $user $upstream_http_remote_user;
 auth_request_set $groups $upstream_http_remote_groups;
 proxy_set_header Remote-User $user;
 proxy_set_header Remote-Groups $groups;
-error_page 401 =302 /authelia/?rd=$target_url;
+error_page 401 = @error401;
 '
 
     curl -s -X POST "${NPM_URL}/api/nginx/proxy-hosts" \

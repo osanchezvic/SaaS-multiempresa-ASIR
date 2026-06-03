@@ -5,3 +5,7 @@ panaderia:uptime-kuma:8121:running
 panaderia:wordpress:8102:running
 panaderia:prestashop:8104:running
 fruteria:wordpress:8105:running
+panaderia:mariadb:8100:running
+fruteria:mariadb:8100:running
+empresa01:mariadb:8106:running
+empresa01:wordpress:8107:running

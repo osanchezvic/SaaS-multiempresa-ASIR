@@ -57,11 +57,16 @@ access_control:
       subject: "group:users"
       policy: one_factor
 
-    - domain: ["panaderia.tensaas.es", "*.panaderia.tensaas.es"]
+    # Esquema real de dominios: <servicio>-<empresa>.tensaas.es (con guion).
+    # Se usa domain_regex porque el wildcard "*.empresa.tensaas.es" (separado
+    # por puntos) NUNCA casaba con "wordpress-panaderia.tensaas.es".
+    - domain_regex:
+        - "^([a-z0-9]+-)?panaderia\\.tensaas\\.es$"
       subject: "group:users"
       policy: one_factor
 
-    - domain: ["btravel.tensaas.es", "*.btravel.tensaas.es", "prestashop-btravel.tensaas.es"]
+    - domain_regex:
+        - "^([a-z0-9]+-)?btravel\\.tensaas\\.es$"
       subject: "group:users"
       policy: one_factor
 
