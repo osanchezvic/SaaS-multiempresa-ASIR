@@ -4,5 +4,4 @@ martincodax:gitea:8110:stopped
 panaderia:uptime-kuma:8121:running
 panaderia:wordpress:8102:running
 panaderia:prestashop:8104:running
-fruteria:mariadb:8100:running
 fruteria:wordpress:8105:running

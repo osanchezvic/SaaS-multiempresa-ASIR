@@ -60,12 +60,19 @@ if [ -x "$SCRIPT_PATH/../infra/backups/backup.sh" ]; then
 fi
 
 # Parar y eliminar contenedores
+# Mismo nombre de proyecto único que en deploy.sh para no tocar contenedores
+# de otras empresas que compartan el nombre de servicio.
+COMPOSE_PROJECT="${EMPRESA}_${SERVICIO}"
 echo_info "Parando contenedores..."
-if docker compose -f "$COMPOSE_FILE" down 2>/dev/null; then
+if docker compose -p "$COMPOSE_PROJECT" -f "$COMPOSE_FILE" down 2>/dev/null; then
     echo_info "Contenedores parados"
 else
     echo_warn "Error parando contenedores"
 fi
+# Red de seguridad: contenedores antiguos (creados antes del proyecto único)
+# no llevan la etiqueta del proyecto y 'compose down' no los toca. Los
+# eliminamos por nombre explícito.
+docker rm -f "${EMPRESA}_${SERVICIO}" >/dev/null 2>&1 || true
 
 # Limpiar Proxy NPM
 source "$SCRIPT_PATH/funciones/npm.sh"

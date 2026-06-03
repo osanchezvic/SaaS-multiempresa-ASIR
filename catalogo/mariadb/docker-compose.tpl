@@ -12,8 +12,10 @@ services:
       - {{RUTA_DATOS}}/mariadb:/var/lib/mysql
     networks:
       - {{EMPRESA}}_net
-    ports:
-      - "{{PUERTO}}:3306"
+    # Sin publicar puerto al host: la BD es interna y solo se accede por la
+    # red de la empresa ({{EMPRESA}}_net) vía DNS de contenedor
+    # ({{EMPRESA}}_mariadb:3306). Publicarla colisionaba entre tenants
+    # (todos pedían el mismo puerto) y rompía el modelo zero-exposure.
 
 networks:
   {{EMPRESA}}_net:

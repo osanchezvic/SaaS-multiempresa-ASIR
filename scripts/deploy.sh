@@ -84,10 +84,15 @@ fi
 
 SERVICIO_DIR="$DATA_DIR/$EMPRESA/$SERVICIO"
 COMPOSE_FILE="$SERVICIO_DIR/docker-compose.yml"
+# Proyecto compose único por empresa+servicio. Sin esto, el nombre de
+# proyecto por defecto sería el del directorio (= el servicio), y todos los
+# tenants del mismo servicio compartirían proyecto, pisándose entre sí
+# (compose recreaba/orfanaba los contenedores de otras empresas).
+COMPOSE_PROJECT="${EMPRESA}_${SERVICIO}"
 
 if [ -f "$COMPOSE_FILE" ]; then
     log_warn "Servicio ya existe para $EMPRESA/$SERVICIO — levantando si es necesario..."
-    docker compose -f "$COMPOSE_FILE" up -d
+    docker compose -p "$COMPOSE_PROJECT" -f "$COMPOSE_FILE" up -d
     # Seguir adelante para asegurar registro en DB y Proxy
 fi
 
@@ -206,7 +211,7 @@ fi
 
 log_info "Levantando contenedores de $SERVICIO..."
 cd "$SERVICIO_DIR"
-docker compose up -d 2>&1 | tee -a "$LOG_FILE"
+docker compose -p "$COMPOSE_PROJECT" up -d 2>&1 | tee -a "$LOG_FILE"
 
 # Conectar a la red global de proxy para exposición segura
 if [ "$(docker network ls -q -f name=infra_proxy_net)" ]; then

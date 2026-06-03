@@ -20,7 +20,6 @@ services:
       - SSH_PORT=2222
     ports:
       - "{{PUERTO}}:3000"
-      - "2222:22"
     volumes:
       - {{RUTA_DATOS}}/gitea:/data
       - /etc/timezone:/etc/timezone:ro
