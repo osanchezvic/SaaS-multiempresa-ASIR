@@ -9,3 +9,4 @@ panaderia:mariadb:8100:running
 fruteria:mariadb:8100:running
 empresa01:mariadb:8106:running
 empresa01:wordpress:8107:running
+fruteria:gitea:8108:running
