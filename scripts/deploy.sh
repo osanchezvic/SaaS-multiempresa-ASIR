@@ -233,8 +233,14 @@ SUBDOMAIN="${SERVICIO}-${EMPRESA}.tensaas.es"
 URL_ACCESO="https://$SUBDOMAIN"
 
 if [ -n "$TOKEN" ]; then
-    # Usar puerto 80 (interno del contenedor) para NPM, ya que la comunicación es vía red Docker
-    npm_add_proxy "$SUBDOMAIN" "${EMPRESA}_${SERVICIO}" "80" "$NPM_CERT_ID" "$TOKEN" || URL_ACCESO="http://localhost:$PUERTO"
+    # El forward de NPM va por la red Docker al puerto INTERNO del contenedor,
+    # que NO siempre es el 80 (gitea/grafana=3000, uptime-kuma=3001, etc.).
+    # Lo derivamos del lado derecho del mapeo "ports: {{PUERTO}}:<interno>" del
+    # compose ya generado. Si no se encuentra, caemos al 80 como antes.
+    PUERTO_INTERNO=$(grep -oE "\"?${PUERTO}:[0-9]+" "$COMPOSE_FILE" | head -n1 | cut -d: -f2)
+    [ -z "$PUERTO_INTERNO" ] && PUERTO_INTERNO=80
+    log_debug "Puerto interno del contenedor para NPM: $PUERTO_INTERNO"
+    npm_add_proxy "$SUBDOMAIN" "${EMPRESA}_${SERVICIO}" "$PUERTO_INTERNO" "$NPM_CERT_ID" "$TOKEN" || URL_ACCESO="http://localhost:$PUERTO"
 else
     URL_ACCESO="http://localhost:$PUERTO"
 fi
