@@ -4,10 +4,11 @@ services:
     container_name: {{EMPRESA}}_prestashop
     restart: always
     environment:
-      - DB_SERVER={{EMPRESA}}_mariadb:3306
+      - DB_SERVER={{EMPRESA}}_mariadb
+      - DB_PORT=3306
       - DB_NAME={{DB_NAME}}
       - DB_USER={{DB_USER}}
-      - DB_PASSWORD={{DB_PASSWORD}}
+      - DB_PASSWD={{DB_PASSWORD}}
       - PS_DOMAIN=localhost:{{PUERTO}}
       - PS_INSTALL_AUTO=1
       - PS_ERASE_DB=0

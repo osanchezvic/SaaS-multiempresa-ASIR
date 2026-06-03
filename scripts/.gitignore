@@ -23,6 +23,7 @@ config.local.env
 *.backup
 *.bak
 *_backup_*.sql
+*_backup_*.tgz
 .snapshot/
 
 # Temporales

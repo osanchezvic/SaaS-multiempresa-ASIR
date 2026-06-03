@@ -1,8 +1,8 @@
-panaderia:mariadb:8100:running
 panaderia:gitea:8101:running
 panaderia:phpmyadmin:8103:running
 martincodax:gitea:8110:stopped
-fruteria:wordpress:8112:running
-panaderia:prestashop:8113:running
 panaderia:uptime-kuma:8121:running
 panaderia:wordpress:8102:running
+panaderia:prestashop:8104:running
+fruteria:mariadb:8100:running
+fruteria:wordpress:8105:running
