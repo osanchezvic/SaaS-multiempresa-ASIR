@@ -1,0 +1,1192 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TenSaaS · Tu empresa digital, lista en minutos</title>
+  <link rel="icon" href="images/favicon.ico" sizes="48x48" />
+  <link rel="icon" href="images/favicon.svg" type="image/svg+xml" />
+  <link rel="icon" type="image/png" sizes="96x96" href="images/favicon-96x96.png" />
+  <link rel="apple-touch-icon" sizes="180x180" href="images/apple-touch-icon.png" />
+  <link rel="manifest" href="images/site.webmanifest" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Instrument+Sans:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet" />
+
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --white:   #ffffff;
+      --ink:     #080808;
+      --green:   #0dff72;
+      --green2:  #00cc58;
+      --grey:    #f2f2f0;
+      --muted:   #888880;
+      --border:  rgba(8,8,8,.1);
+      --ff-head: 'Syne', sans-serif;
+      --ff-body: 'Instrument Sans', sans-serif;
+    }
+
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--white);
+      color: var(--ink);
+      font-family: var(--ff-body);
+      overflow-x: hidden;
+      cursor: none;
+    }
+
+    /* ── CURSOR ─────────────────────────────────────────── */
+    #cur {
+      position: fixed; width: 8px; height: 8px;
+      background: var(--green); border-radius: 50%;
+      pointer-events: none; z-index: 9999;
+      transform: translate(-50%,-50%);
+      transition: width .2s, height .2s, background .2s;
+      mix-blend-mode: multiply;
+    }
+    #cur-ring {
+      position: fixed; width: 36px; height: 36px;
+      border: 1.5px solid var(--ink); border-radius: 50%;
+      pointer-events: none; z-index: 9998;
+      transform: translate(-50%,-50%);
+      transition: width .22s ease, height .22s ease, border-color .2s, opacity .2s;
+      opacity: .4;
+    }
+    body.hov #cur { width: 18px; height: 18px; }
+    body.hov #cur-ring { width: 56px; height: 56px; opacity: .15; border-color: var(--green2); }
+
+    /* ── TOPBAR ─────────────────────────────────────────── */
+    #topbar {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 101;
+      background: var(--ink); color: rgba(255,255,255,.55);
+      font-size: .65rem; letter-spacing: .14em; text-transform: uppercase;
+      text-align: center; padding: .55rem 1rem;
+      border-bottom: 1px solid rgba(255,255,255,.08);
+    }
+    #topbar span { color: var(--green); margin: 0 .5rem; }
+
+    /* Bajar la nav para que quede debajo del topbar */
+    /* ── NAV ─────────────────────────────────────────────── */
+    nav {
+      position: fixed; top: 2.1rem; left: 0; right: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 1.4rem 4rem;
+      background: rgba(255,255,255,.9);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+    }
+    .logo {
+      font-family: var(--ff-head); font-size: 1.35rem;
+      font-weight: 800; letter-spacing: -.02em; color: var(--ink);
+      text-decoration: none; display: flex; align-items: center; gap: .5rem;
+      gap: 0;
+    }
+    .logo-dot { width: 9px; height: 9px; background: var(--green); border-radius: 50%; display: inline-block; animation: pulse 2s ease-in-out infinite; flex-shrink:0; }
+    .logo { letter-spacing: 0; }
+    .logo-img { height: 36px; width: auto; object-fit: contain; display: inline-block; flex-shrink: 0; }
+    .footer-logo-img { height: 28px; }
+    #hero-logo-3d {
+      width: 100%;
+      max-width: 420px;
+      animation: float 4s ease-in-out infinite;
+      filter: drop-shadow(0 30px 60px rgba(13,255,114,.25));
+      gap: 0;
+    }
+    @keyframes float {
+      0%, 100% { transform: translateY(0px) rotate(-2deg); }
+      50%       { transform: translateY(-22px) rotate(2deg); }
+    }
+    #logo3d-canvas {
+      display: block;
+      width: 100%;
+      height: auto;
+      filter: drop-shadow(0 20px 50px rgba(13,255,114,.3));
+    }
+    @keyframes pulse { 0%,100%{transform:scale(1);opacity:1} 50%{transform:scale(1.4);opacity:.7} }
+
+    .nav-links { display: flex; gap: 2.5rem; list-style: none; }
+    .nav-links a {
+      font-size: .78rem; letter-spacing: .14em; text-transform: uppercase;
+      color: var(--muted); text-decoration: none; transition: color .2s;
+    }
+    .nav-links a:hover { color: var(--ink); }
+    .nav-cta {
+      font-family: var(--ff-head); font-size: .75rem; font-weight: 700;
+      letter-spacing: .1em; text-transform: uppercase;
+      background: var(--ink); color: var(--green);
+      padding: .65rem 1.6rem; text-decoration: none;
+      transition: background .2s, color .2s; cursor: none;
+      border: 2px solid var(--ink);
+    }
+    .nav-cta:hover { background: var(--green); color: var(--ink); border-color: var(--green); }
+
+    /* ── HERO ─────────────────────────────────────────────── */
+    #hero {
+      min-height: 100vh; min-height: 100svh;
+      display: flex; flex-direction: column;
+      padding: 0 4rem; position: relative; overflow: hidden;
+      border-bottom: 1px solid var(--border);
+    }
+    #hero::before {
+      content: '';
+      position: absolute; inset: 0;
+      background-image:
+        linear-gradient(var(--border) 1px, transparent 1px),
+        linear-gradient(90deg, var(--border) 1px, transparent 1px);
+      background-size: 60px 60px;
+      pointer-events: none;
+    }
+    .hero-glow {
+      position: absolute; right: 4vw; top: 50%;
+      transform: translateY(-50%);
+      width: 500px; height: 500px;
+      background: radial-gradient(circle, rgba(13,255,114,.22) 0%, transparent 70%);
+      pointer-events: none; animation: glow-breathe 4s ease-in-out infinite;
+    }
+    @keyframes glow-breathe { 0%,100%{opacity:.7;transform:translateY(-50%) scale(1)} 50%{opacity:1;transform:translateY(-50%) scale(1.06)} }
+
+    .hero-content { position: relative; z-index: 2; max-width: 58%; flex: 1; display: flex; flex-direction: column; justify-content: center; padding: 9.5rem 0 3rem; }
+
+    .badge {
+      display: inline-flex; align-items: center; gap: .5rem;
+      border: 1px solid var(--border); padding: .4rem 1rem;
+      font-size: .72rem; letter-spacing: .16em; text-transform: uppercase;
+      color: var(--muted); margin-bottom: 2.5rem; background: var(--white);
+    }
+    .badge-dot { width: 6px; height: 6px; background: var(--green); border-radius: 50%; flex-shrink: 0; }
+
+    h1 {
+      font-family: var(--ff-head); font-weight: 800;
+      font-size: clamp(4.5rem, 9.5vw, 10rem);
+      line-height: .9; letter-spacing: -.03em;
+      color: var(--ink); margin-bottom: 2rem;
+    }
+    h1 .hl {
+      position: relative; display: inline-block;
+      background: linear-gradient(transparent 60%, var(--green2) 60%);
+      background-size: 0% 100%; background-repeat: no-repeat;
+      animation: hl-in 1s .7s cubic-bezier(.76,0,.24,1) forwards;
+    }
+    @keyframes hl-in { to { background-size: 100% 100%; } }
+
+    .hero-sub {
+      font-size: 1.05rem; font-weight: 400; line-height: 1.75;
+      color: var(--muted); max-width: 480px; margin-bottom: 3rem;
+    }
+    .hero-actions { display: flex; gap: 1rem; align-items: center; flex-wrap: wrap; }
+
+    .btn-fill {
+      display: inline-flex; align-items: center; gap: .7rem;
+      background: var(--ink); color: var(--white);
+      font-family: var(--ff-head); font-size: .8rem; font-weight: 700;
+      letter-spacing: .1em; text-transform: uppercase; text-decoration: none;
+      padding: 1rem 2rem; border: 2px solid var(--ink);
+      transition: background .2s, color .2s, border-color .2s; cursor: none;
+    }
+    .btn-fill:hover { background: var(--green); color: var(--ink); border-color: var(--green); }
+    .btn-outline {
+      display: inline-flex; align-items: center; gap: .5rem;
+      background: transparent; color: var(--ink);
+      font-family: var(--ff-head); font-size: .8rem; font-weight: 700;
+      letter-spacing: .1em; text-transform: uppercase; text-decoration: none;
+      padding: 1rem 2rem; border: 2px solid var(--border);
+      transition: border-color .2s; cursor: none;
+    }
+    .btn-outline:hover { border-color: var(--ink); }
+
+    /* STATS STRIP */
+    .hero-stats {
+      display: flex; border-top: 1px solid var(--border);
+      background: var(--white); z-index: 3;
+      margin: 0 -4rem;  /* compensar el padding del hero para ancho completo */
+    }
+    .stat {
+      flex: 1; padding: 1.4rem 2rem;
+      border-right: 1px solid var(--border);
+      display: flex; flex-direction: column; gap: .2rem;
+      transition: background .2s;
+    }
+    .stat:last-child { border-right: none; }
+    .stat:hover { background: var(--green); }
+    .stat-num {
+      font-family: var(--ff-head); font-size: 1.6rem; font-weight: 800;
+      line-height: 1;
+    }
+    .stat-label { font-size: .7rem; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+    .stat:hover .stat-label { color: var(--ink); }
+
+    /* ALPHA VIDEO WRAPPER */
+    #alpha-video-wrap {
+      position: fixed; right: 0; top: 50%;
+      transform: translateY(calc(-50% + var(--py, 0px)));
+      width: clamp(260px, 36vw, 560px);
+      z-index: 10; pointer-events: none;
+      transition: opacity .4s; will-change: transform;
+    }
+    #alpha-video-wrap.hidden { opacity: 0; }
+
+    .video-placeholder {
+      width: 100%; aspect-ratio: 3/4;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center; gap: 1.2rem;
+      border: 1.5px dashed rgba(13,255,114,.45);
+      background: rgba(13,255,114,.04);
+      color: var(--muted); font-size: .72rem;
+      letter-spacing: .12em; text-transform: uppercase;
+      text-align: center; padding: 2rem;
+      animation: breathe 3.5s ease-in-out infinite;
+    }
+    @keyframes breathe { 0%,100%{opacity:.5;transform:scale(1)} 50%{opacity:.9;transform:scale(1.01)} }
+    .video-placeholder svg { opacity: .4; }
+    .video-placeholder strong { color: var(--green2); display: block; font-size: .9rem; margin-bottom: .3rem; }
+
+    /* ── MARQUEE ─────────────────────────────────────────── */
+    .marquee-wrap {
+      border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);
+      background: var(--grey); overflow: hidden; padding: .85rem 0;
+    }
+    .marquee-track {
+      display: flex; gap: 2.5rem; white-space: nowrap; width: max-content;
+      animation: tick 22s linear infinite;
+    }
+    .marquee-track span {
+      font-family: var(--ff-head); font-size: .88rem; font-weight: 600;
+      letter-spacing: .12em; text-transform: uppercase; color: var(--muted);
+    }
+    .marquee-track .hi { color: var(--green2); font-size: 1rem; }
+    @keyframes tick { from{transform:translateX(0)} to{transform:translateX(-50%)} }
+
+    /* ── SERVICES ────────────────────────────────────────── */
+    #services { padding: 10rem 4rem; }
+
+    .section-eyebrow {
+      display: flex; align-items: center; gap: .8rem;
+      font-size: .72rem; letter-spacing: .2em; text-transform: uppercase;
+      color: var(--muted); margin-bottom: 1.5rem;
+    }
+    .section-eyebrow .dash { width: 24px; height: 2px; background: var(--green); flex-shrink:0; }
+
+    .section-title {
+      font-family: var(--ff-head); font-weight: 800;
+      font-size: clamp(3rem, 6.5vw, 6.5rem); line-height: .93;
+      letter-spacing: -.03em; margin-bottom: 5rem;
+    }
+
+    .services-grid {
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px;
+      background: var(--border); border: 1px solid var(--border);
+    }
+    .svc {
+      background: var(--white); padding: 2rem 1.8rem;
+      position: relative; overflow: hidden; cursor: default;
+    }
+    .svc::after {
+      content: ''; position: absolute; inset: 0;
+      background: var(--green); transform: translateY(101%);
+      transition: transform .3s cubic-bezier(.76,0,.24,1); z-index: 0;
+    }
+    .svc:hover::after { transform: translateY(0); }
+    .svc-name {
+      font-family: var(--ff-head); font-size: .92rem; font-weight: 700;
+      letter-spacing: .06em; text-transform: uppercase;
+      margin-bottom: .45rem; position: relative; z-index: 1;
+      transition: color .15s;
+    }
+    .svc-desc {
+      font-size: .76rem; line-height: 1.55; color: var(--muted);
+      position: relative; z-index: 1; transition: color .15s;
+    }
+    .svc:hover .svc-name, .svc:hover .svc-desc { color: var(--ink); }
+
+    /* ── STATEMENT ───────────────────────────────────────── */
+    #statement {
+      padding: 12rem 4rem; background: var(--ink); color: var(--white);
+      position: relative; overflow: hidden;
+    }
+    #statement::before {
+      content: 'TenSaaS'; position: absolute;
+      font-family: var(--ff-head); font-size: 26vw; font-weight: 800;
+      letter-spacing: -.05em; color: transparent;
+      -webkit-text-stroke: 1px rgba(255,255,255,.04);
+      top: 50%; left: 50%; transform: translate(-50%,-50%);
+      pointer-events: none; white-space: nowrap; user-select: none;
+    }
+    .statement-inner { position: relative; }
+    .statement-title {
+      font-family: var(--ff-head); font-size: clamp(3.5rem, 8vw, 9rem);
+      font-weight: 800; line-height: .92; letter-spacing: -.03em;
+    }
+    .statement-title .g { color: var(--green); }
+    .statement-cols {
+      display: flex; gap: 6rem; margin-top: 5rem; align-items: flex-start;
+    }
+    .statement-text {
+      font-size: 1rem; line-height: 1.8; color: rgba(255,255,255,.5);
+      max-width: 420px; flex: 1;
+    }
+    .statement-pills { display: flex; flex-wrap: wrap; gap: .55rem; flex: 1; }
+    .pill {
+      display: inline-flex; align-items: center; gap: .4rem;
+      border: 1px solid rgba(255,255,255,.12);
+      padding: .45rem .95rem; font-size: .76rem;
+      letter-spacing: .08em; color: rgba(255,255,255,.55);
+      transition: border-color .2s, color .2s, background .2s;
+    }
+    .pill:hover { border-color: var(--green); color: var(--green); background: rgba(13,255,114,.06); }
+    .pill::before { content: ''; width: 5px; height: 5px; border-radius: 50%; background: var(--green); flex-shrink: 0; }
+
+    /* ── PRICING ─────────────────────────────────────────── */
+    #pricing { padding: 10rem 4rem; }
+    .pricing-head {
+      display: flex; align-items: flex-end;
+      justify-content: space-between; margin-bottom: 5rem;
+    }
+    .pricing-note { font-size: .82rem; color: var(--muted); max-width: 200px; text-align: right; line-height: 1.6; }
+
+    .plans {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px;
+      background: var(--border); border: 1px solid var(--border);
+    }
+    .plan {
+      background: var(--white); padding: 2.8rem 2.2rem;
+      position: relative; overflow: hidden; transition: transform .25s;
+    }
+    .plan::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0;
+      height: 3px; background: transparent; transition: background .2s;
+    }
+    .plan:hover { transform: translateY(-4px); }
+    .plan:hover::before { background: var(--green); }
+    .plan.featured { background: var(--ink); color: var(--white); }
+    .plan.featured::before { background: var(--green); }
+    .plan-name {
+      font-family: var(--ff-head); font-size: .74rem; font-weight: 700;
+      letter-spacing: .2em; text-transform: uppercase;
+      color: var(--green2); margin-bottom: 1.5rem;
+    }
+    .plan.featured .plan-name { color: var(--green); }
+    .plan-price {
+      font-family: var(--ff-head); font-size: 3.5rem; font-weight: 800;
+      line-height: 1; letter-spacing: -.04em;
+    }
+    .plan.featured .plan-price { color: var(--white); }
+    .plan-period {
+      font-size: .74rem; color: var(--muted); margin-bottom: 2rem; margin-top: .3rem; letter-spacing: .08em;
+    }
+    .plan.featured .plan-period { color: rgba(255,255,255,.35); }
+    .plan-services {
+      font-size: .8rem; line-height: 1.65; color: var(--muted);
+      padding: 1rem 0; border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border); margin-bottom: 2rem;
+    }
+    .plan.featured .plan-services { border-color: rgba(255,255,255,.1); color: rgba(255,255,255,.5); }
+    .plan-services strong { display: block; font-weight: 600; margin-bottom: .25rem; color: var(--ink); }
+    .plan.featured .plan-services strong { color: rgba(255,255,255,.85); }
+    .plan-support {
+      font-size: .7rem; letter-spacing: .1em; text-transform: uppercase;
+      color: var(--muted); margin-bottom: 2rem;
+    }
+    .plan.featured .plan-support { color: rgba(255,255,255,.3); }
+    .plan-btn {
+      display: block; text-align: center; padding: .85rem;
+      font-family: var(--ff-head); font-size: .75rem; font-weight: 700;
+      letter-spacing: .12em; text-transform: uppercase; text-decoration: none;
+      cursor: none; border: 2px solid var(--border); color: var(--ink);
+      transition: background .2s, color .2s, border-color .2s;
+    }
+    .plan-btn:hover { background: var(--green); border-color: var(--green); color: var(--ink); }
+    .plan.featured .plan-btn { border-color: var(--green); color: var(--green); }
+    .plan.featured .plan-btn:hover { background: var(--green); color: var(--ink); }
+
+    .extras {
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px;
+      background: var(--border); border: 1px solid var(--border); border-top: none;
+    }
+    .extra {
+      background: var(--grey); padding: 1.4rem 1.5rem;
+      transition: background .2s;
+    }
+    .extra:hover { background: var(--green); }
+    .extra:hover .extra-name { color: var(--ink); }
+    .extra:hover .extra-price { color: var(--ink); }
+    .extra-name { font-size: .78rem; font-weight: 500; margin-bottom: .25rem; transition: color .2s; }
+    .extra-price {
+      font-family: var(--ff-head); font-size: .9rem; font-weight: 700;
+      color: var(--green2); letter-spacing: .04em; transition: color .2s;
+    }
+
+    /* ── TECH STACK ──────────────────────────────────────── */
+    #stack { padding: 8rem 4rem; background: var(--grey); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+    .stack-grid {
+      display: grid; grid-template-columns: repeat(5, 1fr); gap: 1px;
+      background: var(--border); border: 1px solid var(--border); margin-top: 4rem;
+    }
+    .stack-item {
+      background: var(--grey); padding: 2rem 1.5rem; text-align: center;
+      transition: background .2s;
+    }
+    .stack-item:hover { background: var(--green); }
+    .stack-item:hover .stack-name, .stack-item:hover .stack-role { color: var(--ink); }
+    .stack-icon { font-size: 1.6rem; margin-bottom: .6rem; }
+    .stack-name {
+      font-family: var(--ff-head); font-size: .82rem; font-weight: 700;
+      letter-spacing: .1em; text-transform: uppercase; transition: color .2s;
+    }
+    .stack-role { font-size: .7rem; color: var(--muted); margin-top: .2rem; transition: color .2s; }
+
+    /* ── DAFO ────────────────────────────────────────────── */
+    #dafo { padding: 10rem 4rem; }
+    .dafo-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 1px;
+      background: var(--border); border: 1px solid var(--border); margin-top: 4rem;
+    }
+    .dafo-cell {
+      background: var(--white); padding: 3rem 2.5rem;
+      transition: background .25s;
+    }
+    .dafo-cell:hover { background: #f8fff9; }
+    .dafo-cell.F { border-left: 3px solid var(--green2); }
+    .dafo-cell.D { border-left: 3px solid #ff4040; }
+    .dafo-cell.O { border-left: 3px solid #0088ff; }
+    .dafo-cell.A { border-left: 3px solid #ff8800; }
+    .dafo-label {
+      font-family: var(--ff-head); font-size: 2.2rem; font-weight: 800;
+      letter-spacing: -.03em; margin-bottom: 1.5rem;
+    }
+    .dafo-cell.F .dafo-label { color: var(--green2); }
+    .dafo-cell.D .dafo-label { color: #ff4040; }
+    .dafo-cell.O .dafo-label { color: #0088ff; }
+    .dafo-cell.A .dafo-label { color: #ff8800; }
+    .dafo-list { list-style: none; display: flex; flex-direction: column; gap: .65rem; }
+    .dafo-list li {
+      font-size: .86rem; color: var(--muted); line-height: 1.6;
+      padding-left: 1rem; border-left: 1px solid var(--border);
+    }
+
+    /* ── FOOTER ──────────────────────────────────────────── */
+    footer {
+      border-top: 1px solid var(--border); padding: 2.5rem 4rem;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .footer-logo {
+      font-family: var(--ff-head); font-size: 1.1rem; font-weight: 800;
+      letter-spacing: -.02em; display: flex; align-items: center; gap: .4rem;
+    }
+    .footer-copy { font-size: .72rem; color: var(--muted); letter-spacing: .05em; }
+    .footer-links { display: flex; gap: 2rem; list-style: none; }
+    .footer-links a {
+      font-size: .72rem; letter-spacing: .1em; text-transform: uppercase;
+      color: var(--muted); text-decoration: none; transition: color .2s;
+    }
+    .footer-links a:hover { color: var(--green2); }
+
+    /* ── REVEAL ──────────────────────────────────────────── */
+    .reveal { opacity: 0; transform: translateY(32px); transition: opacity .65s ease, transform .65s ease; }
+    .reveal.on { opacity: 1; transform: none; }
+
+    /* ── HAMBURGER ───────────────────────────────────────── */
+    .nav-hamburger {
+      display: none; flex-direction: column; justify-content: center;
+      gap: 5px; width: 36px; height: 36px; cursor: pointer;
+      background: none; border: none; padding: 4px;
+      position: relative; z-index: 200;
+    }
+    .nav-hamburger span {
+      display: block; height: 2px; background: var(--ink);
+      border-radius: 2px; transition: transform .3s, opacity .3s;
+    }
+    .nav-hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+    .nav-hamburger.open span:nth-child(2) { opacity: 0; }
+    .nav-hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+    .nav-mobile-drawer {
+      display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+      background: var(--white); z-index: 99; flex-direction: column;
+      align-items: center; justify-content: center; gap: 2.5rem;
+      opacity: 0; pointer-events: none; transition: opacity .3s;
+    }
+    .nav-mobile-drawer.open { opacity: 1; pointer-events: all; }
+    .nav-mobile-drawer a {
+      font-family: var(--ff-head); font-size: 2rem; font-weight: 800;
+      letter-spacing: -.03em; color: var(--ink); text-decoration: none;
+      transition: color .2s;
+    }
+    .nav-mobile-drawer a:hover { color: var(--green2); }
+    .nav-mobile-drawer .nav-cta-mobile {
+      font-family: var(--ff-head); font-size: .85rem; font-weight: 700;
+      letter-spacing: .12em; text-transform: uppercase;
+      background: var(--ink); color: var(--green);
+      padding: .9rem 2.4rem; text-decoration: none;
+      border: 2px solid var(--ink); margin-top: 1rem;
+      transition: background .2s, color .2s;
+    }
+    .nav-mobile-drawer .nav-cta-mobile:hover { background: var(--green); color: var(--ink); }
+
+    @media (max-width: 600px) {
+      #topbar { display: none; }
+      nav { top: 0; }
+    }
+
+    /* ── TOUCH: no custom cursor ─────────────────────────── */
+    @media (hover: none) and (pointer: coarse) {
+      body { cursor: auto; }
+      #cur, #cur-ring { display: none; }
+      a, button, .plan-btn, .btn-fill, .btn-outline, .nav-cta { cursor: pointer; }
+    }
+
+    /* ── RESPONSIVE: tablet (≤960px) ────────────────────── */
+    @media (max-width: 960px) {
+      nav { padding: 1.2rem 2rem; }
+      .nav-links { display: none; }
+      .nav-hamburger { display: flex; }
+      .nav-mobile-drawer { display: flex; }
+      .nav-cta { display: none; }
+
+      /* El stats strip pasa a flow normal, así que quitamos el
+         padding-bottom que reservaba espacio para la barra absoluta */
+      #hero { padding: 0 2rem; min-height: 100svh; }
+      .hero-content { padding: 8rem 0 3rem; max-width: 100%; }
+      .hero-stats { margin: 0 -2rem; }
+      #alpha-video-wrap { display: none; }
+
+      .hero-glow { display: none; }
+
+      .hero-stats {
+        position: relative; display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        border-top: 1px solid var(--border);
+      }
+      .stat { border-right: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+      .stat:nth-child(3n), .stat:last-child { border-right: none; }
+
+      .services-grid { grid-template-columns: 1fr 1fr; }
+      .plans { grid-template-columns: 1fr 1fr; }
+      .extras { grid-template-columns: 1fr 1fr; }
+      .stack-grid { grid-template-columns: repeat(3, 1fr); }
+      .dafo-grid { grid-template-columns: 1fr; }
+      #services, #pricing, #stack, #dafo, #statement { padding: 6rem 2rem; }
+      footer { flex-direction: column; gap: 1.5rem; text-align: center; }
+      .footer-links { justify-content: center; flex-wrap: wrap; gap: 1.2rem; }
+      .pricing-head { flex-direction: column; align-items: flex-start; gap: 1rem; }
+      .statement-cols { flex-direction: column; gap: 3rem; }
+      .pricing-note { text-align: left; }
+
+      /* El plan "Empresa" ocupa las dos columnas para mantener su prominencia */
+      .plan.featured { grid-column: span 2; }
+    }
+
+    /* ── RESPONSIVE: mobile (≤600px) ─────────────────────── */
+    @media (max-width: 600px) {
+      h1 { font-size: clamp(2.8rem, 12vw, 4.5rem); }
+      .section-title { font-size: clamp(2.2rem, 10vw, 3rem); margin-bottom: 3rem; }
+      .statement-title { font-size: clamp(2.5rem, 12vw, 4rem); }
+
+      #hero { padding: 0 1.25rem; }
+      .hero-content { padding: 6rem 0 2.5rem; max-width: 100%; }
+      .hero-stats { margin: 0 -1.25rem; }
+
+      .badge { margin-bottom: 1.5rem; font-size: .65rem; }
+      .hero-sub { font-size: .92rem; }
+      .hero-actions { flex-direction: column; align-items: stretch; gap: .75rem; }
+      .btn-fill, .btn-outline { width: 100%; justify-content: center; }
+
+      .hero-stats {
+        grid-template-columns: repeat(2, 1fr);
+        overflow-x: visible;
+      }
+      /* Con 5 stats en rejilla 2 columnas: 2+2+1. El último abarca ambas. */
+      .stat { border-right: 1px solid var(--border); }
+      .stat:nth-child(2n) { border-right: none; }
+      .stat:nth-child(5) { grid-column: span 2; border-right: none; }
+
+      .services-grid { grid-template-columns: 1fr; }
+      .plans { grid-template-columns: 1fr; }
+      .plan.featured { grid-column: auto; }  /* Resetear el span del tablet */
+      .extras { grid-template-columns: 1fr 1fr; }
+      .stack-grid { grid-template-columns: repeat(2, 1fr); }
+
+      .plan-price { font-size: 2.8rem; }
+      .plan { padding: 2rem 1.5rem; }
+
+      #services, #pricing, #stack, #statement { padding: 4rem 1.25rem; }
+      footer { padding: 2rem 1.25rem; }
+      .footer-links { gap: 1rem; }
+
+      .statement-cols { gap: 2rem; }
+      .statement-text { font-size: .9rem; }
+    }
+
+    /* ── RESPONSIVE: tiny phones (≤380px) ───────────────── */
+    @media (max-width: 380px) {
+      nav { padding: 1rem 1.25rem; }
+      #hero { padding: 0 1rem; }
+      .hero-content { padding: 5.5rem 0 2rem; }
+      .hero-stats { margin: 0 -1rem; }
+      h1 { font-size: clamp(2.4rem, 13vw, 3.5rem); }
+      .extras { grid-template-columns: 1fr; }
+      .stack-grid { grid-template-columns: repeat(2, 1fr); }
+      .hero-stats { grid-template-columns: 1fr 1fr; }
+      .stat { padding: 1rem .85rem; }
+      .stat-num { font-size: 1.3rem; }
+    }
+  </style>
+</head>
+<body>
+  <div id="topbar">Sin permanencia<span>·</span>Datos alojados en España<span>·</span>Soporte en español</div>
+  <div id="cur"></div>
+  <div id="cur-ring"></div>
+
+  <!-- NAV -->
+  <nav>
+    <a href="#" class="logo">
+      <img src="images/logo3d.png" alt="TenSaaS" class="logo-img" />Ten<span style="color: var(--green2)">SaaS</span>
+    </a>
+    <ul class="nav-links">
+      <li><a href="#services">Servicios</a></li>
+      <li><a href="#pricing">Precios</a></li>
+      <li><a href="#stack">Tecnología</a></li>
+      <li><a href="https://github.com/osanchezvic/SaaS-multiempresa-ASIR" target="_blank">GitHub</a></li>
+    </ul>
+    <a href="#pricing" class="nav-cta">Ver planes →</a>
+    <button class="nav-hamburger" id="hamburger" aria-label="Abrir menú" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+  </nav>
+
+  <!-- MOBILE DRAWER -->
+  <div class="nav-mobile-drawer" id="mobile-drawer" role="dialog" aria-label="Navegación">
+    <a href="#services" class="drawer-link">Servicios</a>
+    <a href="#pricing" class="drawer-link">Precios</a>
+    <a href="#stack" class="drawer-link">Tecnología</a>
+    <a href="https://github.com/osanchezvic/SaaS-multiempresa-ASIR" target="_blank" class="drawer-link">GitHub</a>
+    <a href="#pricing" class="nav-cta-mobile">Ver planes →</a>
+  </div>
+
+  <!-- HERO -->
+  <section id="hero">
+    <div class="hero-content">
+      <h1>
+       Invisible
+        <span class="hl">no vende.</span><br/>
+      </h1>
+      <p class="hero-sub">
+	Nosotros nos encargamos de la tecnología para que tú puedas centrarte en tu negocio.
+      </p>
+      <div class="hero-actions">
+        <a href="#pricing" class="btn-fill">
+          Ver planes
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+            <path d="M2 7h10M8 3l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </a>
+        <a href="https://github.com/osanchezvic/SaaS-multiempresa-ASIR" target="_blank" class="btn-outline">Ver repositorio →</a>
+      </div>
+    </div>
+
+    <div class="hero-glow" aria-hidden="true"></div>
+
+    <!--
+    ════════════════════════════════════════════════════════
+    ALPHA VIDEO — INSTRUCCIONES DE USO
+    ════════════════════════════════════════════════════════
+    Para activar el video transparente real, sustituye el
+    div.video-placeholder por el siguiente bloque:
+
+    <video id="alpha-video" autoplay loop muted playsinline>
+      <source src="assets/hero.webm" type="video/webm" />
+      <source src="assets/hero.mov" type="video/mp4;codecs=hvc1" />
+    </video>
+
+    FORMATOS NECESARIOS para transparencia real:
+    • .webm con VP9 + canal alpha  → Chrome, Firefox, Edge
+    • .mov con HEVC + canal alpha  → Safari, iOS
+
+    Exporta desde After Effects / DaVinci con fondo
+    transparente y sin pre-multiplicar el canal alpha.
+
+    Dimensiones recomendadas: 800×1200 px · 30 fps
+    ════════════════════════════════════════════════════════
+    -->
+    <div id="alpha-video-wrap" aria-hidden="true">
+      <canvas id="logo3d-canvas"></canvas>
+    </div>
+
+    <div class="hero-stats">
+      <div class="stat">
+        <span class="stat-num">17</span>
+        <span class="stat-label">Soluciones disponibles</span>
+      </div>
+      <div class="stat">
+        <span class="stat-num">9,99€</span>
+        <span class="stat-label">Desde / mes</span>
+      </div>
+      <div class="stat">
+        <span class="stat-num">100%</span>
+        <span class="stat-label">Datos en España</span>
+      </div>
+      <div class="stat">
+        <span class="stat-num">RGPD</span>
+        <span class="stat-label">Cumplimiento garantizado</span>
+      </div>
+      <div class="stat">
+        <span class="stat-num">0€</span>
+        <span class="stat-label">Coste de instalación</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- MARQUEE -->
+  <div class="marquee-wrap" aria-hidden="true">
+    <div class="marquee-track">
+      <span>Tu nube privada</span><span class="hi">·</span>
+      <span>Web corporativa</span><span class="hi">·</span>
+      <span>Acceso remoto seguro</span><span class="hi">·</span>
+      <span>Gestor de contraseñas</span><span class="hi">·</span>
+      <span>Videoconferencia propia</span><span class="hi">·</span>
+      <span>Tienda online</span><span class="hi">·</span>
+      <span>Monitorización 24/7</span><span class="hi">·</span>
+      <span>Repositorio de código</span><span class="hi">·</span>
+      <span>Sin costes de licencias</span><span class="hi">·</span>
+      <span>Soporte en español</span><span class="hi">·</span>
+      <span>Backups automáticos</span><span class="hi">·</span>
+      <span>HTTPS incluido</span><span class="hi">·</span>
+      <span>Tu nube privada</span><span class="hi">·</span>
+      <span>Web corporativa</span><span class="hi">·</span>
+      <span>Acceso remoto seguro</span><span class="hi">·</span>
+      <span>Gestor de contraseñas</span><span class="hi">·</span>
+      <span>Videoconferencia propia</span><span class="hi">·</span>
+      <span>Tienda online</span><span class="hi">·</span>
+      <span>Monitorización 24/7</span><span class="hi">·</span>
+      <span>Repositorio de código</span><span class="hi">·</span>
+      <span>Sin costes de licencias</span><span class="hi">·</span>
+      <span>Soporte en español</span><span class="hi">·</span>
+      <span>Backups automáticos</span><span class="hi">·</span>
+      <span>HTTPS incluido</span><span class="hi">·</span>
+    </div>
+  </div>
+
+  <!-- SERVICES -->
+  <section id="services">
+    <div class="section-eyebrow reveal"><span class="dash"></span>Lo que incluye TenSaaS</div>
+    <h2 class="section-title reveal">Todo lo que<br/>necesita tu empresa.</h2>
+
+    <div class="services-grid">
+      <div class="svc"><div class="svc-name">Nube privada</div><div class="svc-desc">Tus archivos, calendarios y contactos en la nube de tu empresa. Sin depender de Google ni Dropbox.</div></div>
+      <div class="svc"><div class="svc-name">Web corporativa</div><div class="svc-desc">Tu presencia online profesional, con diseño personalizable y gestión sencilla sin conocimientos técnicos.</div></div>
+      <div class="svc"><div class="svc-name">Acceso remoto seguro</div><div class="svc-desc">Conecta con tu oficina desde cualquier lugar con total privacidad. Tu red corporativa, siempre a mano.</div></div>
+      <div class="svc"><div class="svc-name">Gestor de contraseñas</div><div class="svc-desc">Guarda y comparte contraseñas de forma segura con tu equipo. Compatible con todas las apps y navegadores.</div></div>
+      <div class="svc"><div class="svc-name">Repositorio de código</div><div class="svc-desc">Tu código fuente privado y bajo tu control. Colaboración en equipo sin depender de GitHub ni GitLab.</div></div>
+      <div class="svc"><div class="svc-name">Dashboards en tiempo real</div><div class="svc-desc">Visualiza el estado de todos tus sistemas en un solo vistazo. Informes claros sin necesidad de técnico.</div></div>
+      <div class="svc"><div class="svc-name">Alertas automáticas</div><div class="svc-desc">Recibe avisos antes de que los problemas afecten a tu negocio. Monitorización continua y sin interrupciones.</div></div>
+      <div class="svc"><div class="svc-name">Vigilancia de sistemas</div><div class="svc-desc">Supervisión avanzada de todos tus servicios. Sabrás exactamente qué ocurre en tu empresa digital.</div></div>
+      <div class="svc"><div class="svc-name">Videoconferencia propia</div><div class="svc-desc">Reuniones corporativas ilimitadas, sin límite de participantes ni suscripciones externas. 100% tuyo.</div></div>
+      <div class="svc"><div class="svc-name">Tienda online</div><div class="svc-desc">Empieza a vender por internet desde el primer día. Tu e-commerce profesional, listo para funcionar.</div></div>
+      <div class="svc"><div class="svc-name">Panel de gestión</div><div class="svc-desc">Controla todos tus servicios desde un único panel visual. Sin líneas de comandos ni tecnicismos.</div></div>
+      <div class="svc"><div class="svc-name">Gestión de datos</div><div class="svc-desc">Accede y administra la información de tu empresa de forma cómoda, segura y siempre disponible.</div></div>
+      <div class="svc"><div class="svc-name">Rendimiento óptimo</div><div class="svc-desc">Tus aplicaciones responden al instante. Caché de alta velocidad que mejora la experiencia de tus clientes.</div></div>
+      <div class="svc"><div class="svc-name">Disponibilidad 24/7</div><div class="svc-desc">Monitorización continua de todos tus servicios. Serás el primero en saber si algo necesita atención.</div></div>
+      <div class="svc"><div class="svc-name">Velocidad y seguridad web</div><div class="svc-desc">Tu web, rápida y protegida. Certificado HTTPS incluido y rendimiento optimizado desde el primer día.</div></div>
+      <div class="svc"><div class="svc-name">Métricas de rendimiento</div><div class="svc-desc">Datos detallados sobre el estado de tu empresa digital. Información en tiempo real para tomar mejores decisiones.</div></div>
+      <div class="svc"><div class="svc-name">Acceso centralizado</div><div class="svc-desc">Un dashboard personalizado con acceso directo a todos tus servicios. Un clic y listo.</div></div>
+    </div>
+  </section>
+
+  <!-- STATEMENT -->
+  <section id="statement">
+    <div class="statement-inner">
+      <h2 class="statement-title reveal">
+        Tu empresa.<br/>Digital.<br/>
+        <span class="g">Hoy.</span>
+      </h2>
+      <div class="statement-cols">
+        <p class="statement-text reveal">
+          Deja que TenSaaS se encargue de la tecnología. Nosotros <span class="g">configuramos, mantenemos y protegemos</span> las herramientas digitales de tu negocio para que tú puedas centrarte en lo que realmente importa: crecer.
+        </p>
+        <div class="statement-pills reveal">
+          <span class="pill">Tus datos, aislados y seguros</span>
+          <span class="pill">HTTPS incluido en todos los servicios</span>
+          <span class="pill">Copias de seguridad automáticas</span>
+          <span class="pill">Instalación sin coste adicional</span>
+          <span class="pill">Datos alojados en España</span>
+          <span class="pill">Cumplimiento RGPD garantizado</span>
+          <span class="pill">Sin costes de licencias</span>
+          <span class="pill">Protección ante ataques incluida</span>
+          <span class="pill">Actualizaciones automáticas</span>
+          <span class="pill">Soporte en español</span>
+          <span class="pill">Sin permanencia · Cancela cuando quieras</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PRICING -->
+  <section id="pricing">
+    <div class="pricing-head">
+      <div>
+        <div class="section-eyebrow reveal"><span class="dash"></span>Precios transparentes</div>
+        <h2 class="section-title reveal">El plan<br/>perfecto para ti.</h2>
+      </div>
+      <p class="pricing-note reveal">IVA no incluido. Sin permanencia. Cancelación mensual.</p>
+    </div>
+
+    <div class="plans">
+      <div class="plan reveal">
+        <div class="plan-name">Básico</div>
+        <div class="plan-price">9,99€</div>
+        <div class="plan-period">/ mes · 1 empresa</div>
+        <div class="plan-services"><strong>Incluye</strong>Tu web corporativa con gestor de contenidos. El punto de partida digital para cualquier empresa.</div>
+        <div class="plan-support">Soporte via Email</div>
+        <a href="contacto.html?plan=B%C3%A1sico" class="plan-btn">>Empezar →</a>
+      </div>
+      <div class="plan reveal">
+        <div class="plan-name">Seguridad</div>
+        <div class="plan-price">19,99€</div>
+        <div class="plan-period">/ mes · 1 empresa</div>
+        <div class="plan-services"><strong>Incluye</strong>Acceso remoto seguro, gestor de contraseñas corporativo y protección anti-intrusión activa.</div>
+        <div class="plan-support">Soporte Email + Chat</div>
+        <a href="contacto.html?plan=Seguridad" class="plan-btn">>Empezar →</a>
+      </div>
+      <div class="plan featured reveal">
+        <div class="plan-name">Empresa ★ Popular</div>
+        <div class="plan-price">24,99€</div>
+        <div class="plan-period">/ mes · 1 empresa</div>
+        <div class="plan-services"><strong>Incluye</strong>Tu nube privada, acceso remoto seguro y gestor de contraseñas. La suite digital completa para PYMEs.</div>
+        <div class="plan-support">Soporte Email + Chat</div>
+        <a href="contacto.html?plan=Empresa" class="plan-btn">>Empezar →</a>
+      </div>
+      <div class="plan reveal">
+        <div class="plan-name">Monitorización</div>
+        <div class="plan-price">24,99€</div>
+        <div class="plan-period">/ mes · 1 empresa</div>
+        <div class="plan-services"><strong>Incluye</strong>Dashboards en tiempo real, alertas automáticas y vigilancia continua de todos tus sistemas.</div>
+        <div class="plan-support">Soporte Email + Chat</div>
+        <a href="contacto.html?plan=Monitorizaci%C3%B3n" class="plan-btn">>Empezar →</a>
+      </div>
+      <div class="plan reveal">
+        <div class="plan-name">Dev</div>
+        <div class="plan-price">34,99€</div>
+        <div class="plan-period">/ mes · 1 empresa</div>
+        <div class="plan-services"><strong>Incluye</strong>Repositorio de código privado, base de datos, caché de alto rendimiento y servidor web corporativo.</div>
+        <div class="plan-support">Soporte Email + Chat</div>
+        <a href="contacto.html?plan=Dev" class="plan-btn">>Empezar →</a>
+      </div>
+      <div class="plan reveal">
+        <div class="plan-name">Completo</div>
+        <div class="plan-price">49,99€</div>
+        <div class="plan-period">/ mes · hasta 6 servicios</div>
+        <div class="plan-services"><strong>Incluye</strong>El stack digital completo a medida. Hasta 6 soluciones del catálogo, adaptadas a tu empresa.</div>
+        <div class="plan-support">Soporte Prioritario</div>
+        <a href="contacto.html?plan=Completo" class="plan-btn">>Empezar →</a>
+      </div>
+    </div>
+
+    <div class="extras">
+      <div class="extra">
+        <div class="extra-name">Almacenamiento extra +50 GB</div>
+        <div class="extra-price">6,99 €/mes</div>
+      </div>
+      <div class="extra">
+        <div class="extra-name">Soporte prioritario</div>
+        <div class="extra-price">9,99 €/mes</div>
+      </div>
+      <div class="extra">
+        <div class="extra-name">Migración de datos incluida</div>
+        <div class="extra-price">49,99 € único</div>
+      </div>
+      <div class="extra">
+        <div class="extra-name">Dominio propio configurado</div>
+        <div class="extra-price">19,99 € único</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- STACK -->
+  <section id="stack">
+    <div class="section-eyebrow reveal"><span class="dash"></span>Tecnología que te protege</div>
+    <h2 class="section-title reveal">Sin licencias.<br/>Sin ataduras.</h2>
+    <div class="stack-grid">
+      <div class="stack-item reveal">
+        <div class="stack-icon">🐳</div>
+        <div class="stack-name">Docker</div>
+        <div class="stack-role">Aislamiento total</div>
+      </div>
+      <div class="stack-item reveal">
+        <div class="stack-icon">⚙️</div>
+        <div class="stack-name">Automatización</div>
+        <div class="stack-role">Cero intervención</div>
+      </div>
+      <div class="stack-item reveal">
+        <div class="stack-icon">🔀</div>
+        <div class="stack-name">Nginx PM</div>
+        <div class="stack-role">Subdominio propio</div>
+      </div>
+      <div class="stack-item reveal">
+        <div class="stack-icon">🔒</div>
+        <div class="stack-name">Let's Encrypt</div>
+        <div class="stack-role">HTTPS automático</div>
+      </div>
+      <div class="stack-item reveal">
+        <div class="stack-icon">☁️</div>
+        <div class="stack-name">Cloudflare</div>
+        <div class="stack-role">Protección DDoS</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- DAFO
+  <section id="dafo">
+    <div class="section-eyebrow reveal"><span class="dash"></span>Análisis estratégico</div>
+    <h2 class="section-title reveal">DAFO.</h2>
+    <div class="dafo-grid">
+      <div class="dafo-cell F reveal">
+        <div class="dafo-label">Fortalezas</div>
+        <ul class="dafo-list">
+          <li>Alta automática sin intervención manual</li>
+          <li>Stack 100% open source · sin costes de licencias</li>
+          <li>Catálogo modular y ampliable con nueva carpeta</li>
+          <li>Backups automáticos integrados en destroy.sh</li>
+          <li>Soporte local y personalizado</li>
+        </ul>
+      </div>
+      <div class="dafo-cell D reveal">
+        <div class="dafo-label">Debilidades</div>
+        <ul class="dafo-list">
+          <li>Proyecto unipersonal · capacidad de soporte limitada</li>
+          <li>Dependencia de un único servidor físico en prototipo</li>
+          <li>Sin marca ni reputación consolidada</li>
+        </ul>
+      </div>
+      <div class="dafo-cell O reveal">
+        <div class="dafo-label">Oportunidades</div>
+        <ul class="dafo-list">
+          <li>Creciente digitalización de PYMEs españolas</li>
+          <li>Interés institucional por soberanía digital y RGPD</li>
+          <li>Ayudas del Kit Digital para PYMEs</li>
+          <li>+180.000 empresas en Galicia · baja penetración digital</li>
+        </ul>
+      </div>
+      <div class="dafo-cell A reveal">
+        <div class="dafo-label">Amenazas</div>
+        <ul class="dafo-list">
+          <li>Competencia de Hostinger, OVHcloud, Hetzner</li>
+          <li>Evolución rápida del ecosistema Docker</li>
+          <li>Regulación RGPD / LOPDGDD</li>
+          <li>Dependencia de proveedor de dominio e IP fija</li>
+        </ul>
+      </div>
+    </div>
+  </section>-->
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-logo">
+      <img src="images/logo3d.png" alt="TenSaaS" class="logo-img footer-logo-img" />Ten<span style="color: var(--green)">SaaS</span>
+    </div>
+    <p class="footer-copy">© 2026 Óscar Sánchez Victoria · Proyecto ASIR · IES Armando Cotarelo Valledor</p>
+    <ul class="footer-links">
+      <li><a href="https://github.com/osanchezvic/SaaS-multiempresa-ASIR" target="_blank">GitHub</a></li>
+      <li><a href="privacidad.html">Privacidad</a></li>
+      <li><a href="contacto.html">Contacto</a></li>
+    </ul>
+  </footer>
+
+  <script>
+    /* ── CUSTOM CURSOR ────────────────────────────────── */
+    const cur = document.getElementById('cur');
+    const ring = document.getElementById('cur-ring');
+    let mx = 0, my = 0, rx = 0, ry = 0;
+    document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; });
+    (function loop() {
+      rx += (mx - rx) * .14;
+      ry += (my - ry) * .14;
+      cur.style.left = mx + 'px'; cur.style.top = my + 'px';
+      ring.style.left = rx + 'px'; ring.style.top = ry + 'px';
+      requestAnimationFrame(loop);
+    })();
+    document.querySelectorAll('a, button, .svc, .plan, .extra, .stack-item, .dafo-cell, .stat').forEach(el => {
+      el.addEventListener('mouseenter', () => document.body.classList.add('hov'));
+      el.addEventListener('mouseleave', () => document.body.classList.remove('hov'));
+    });
+
+    /* ── ALPHA VIDEO PARALLAX ─────────────────────────
+       Velocidad parallax: 0 = fijo, 1 = igual que scroll.
+       0.3 = suave y elegante.
+    ─────────────────────────────────────────────────── */
+    const vw = document.getElementById('alpha-video-wrap');
+    const heroEl = document.getElementById('hero');
+    function updateV() {
+      const r = heroEl.getBoundingClientRect();
+      if (r.bottom < 0 || r.top > window.innerHeight) {
+        vw.classList.add('hidden'); return;
+      }
+      vw.classList.remove('hidden');
+      vw.style.setProperty('--py', (window.scrollY * .3) + 'px');
+    }
+    window.addEventListener('scroll', updateV, { passive: true });
+    updateV();
+
+    /* ── SCROLL REVEAL ────────────────────────────────── */
+    const io = new IntersectionObserver(entries => {
+      entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('on'); });
+    }, { threshold: .1 });
+    document.querySelectorAll('.reveal').forEach((el, i) => {
+      el.style.transitionDelay = (i % 5) * 70 + 'ms';
+      io.observe(el);
+    });
+    /* ── HAMBURGER MENU ───────────────────────────────────── */
+    const hamburger = document.getElementById('hamburger');
+    const drawer = document.getElementById('mobile-drawer');
+    function toggleDrawer(open) {
+      hamburger.classList.toggle('open', open);
+      drawer.classList.toggle('open', open);
+      hamburger.setAttribute('aria-expanded', open);
+      document.body.style.overflow = open ? 'hidden' : '';
+    }
+    hamburger.addEventListener('click', () => toggleDrawer(!drawer.classList.contains('open')));
+    document.querySelectorAll('.drawer-link, .nav-cta-mobile').forEach(link => {
+      link.addEventListener('click', () => toggleDrawer(false));
+    });
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') toggleDrawer(false); });
+  </script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script>
+    /* ── THREE.JS GLB LOGO 3D ─────────────────────────── */
+    (function() {
+      const canvas = document.getElementById('logo3d-canvas');
+      const wrap   = document.getElementById('alpha-video-wrap');
+
+      const W = wrap.offsetWidth || 480;
+      const H = Math.round(W * 1.2);
+      canvas.width  = W;
+      canvas.height = H;
+      canvas.style.width  = W + 'px';
+      canvas.style.height = H + 'px';
+
+      const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+      renderer.setSize(W, H);
+      renderer.setClearColor(0x000000, 0);
+      renderer.outputEncoding = THREE.sRGBEncoding;
+      renderer.toneMapping = THREE.ACESFilmicToneMapping;
+      renderer.toneMappingExposure = 1.6;
+      renderer.physicallyCorrectLights = true;
+
+      const scene  = new THREE.Scene();
+      const camera = new THREE.PerspectiveCamera(45, W / H, 0.1, 100);
+      camera.position.set(0, 0, 5);
+
+      /* ── Luces ── */
+      scene.add(new THREE.AmbientLight(0xffffff, 1.2));
+
+      const dirLight = new THREE.DirectionalLight(0xffffff, 3.0);
+      dirLight.position.set(4, 6, 5);
+      scene.add(dirLight);
+
+      const rimLight = new THREE.DirectionalLight(0x00ff88, 1.8);
+      rimLight.position.set(-5, -2, -4);
+      scene.add(rimLight);
+
+      const topLight = new THREE.PointLight(0xffffff, 2.0, 30);
+      topLight.position.set(0, 6, 3);
+      scene.add(topLight);
+
+      const fillLight = new THREE.DirectionalLight(0x88ffcc, 1.0);
+      fillLight.position.set(0, -4, 2);
+      scene.add(fillLight);
+
+      /* ── Entorno de reflejos sintético (sin HDRI externo) ── */
+      function buildEnvMap() {
+        const pmrem = new THREE.PMREMGenerator(renderer);
+        pmrem.compileEquirectangularShader();
+
+        /* Creamos una escena de entorno simple con gradiente */
+        const envScene = new THREE.Scene();
+        const envGeo   = new THREE.SphereGeometry(50, 32, 32);
+        const envMat   = new THREE.MeshBasicMaterial({
+          side: THREE.BackSide,
+          vertexColors: false,
+          color: 0x112210
+        });
+        envScene.add(new THREE.Mesh(envGeo, envMat));
+
+        /* Luces dentro del entorno para crear reflejos */
+        const e1 = new THREE.PointLight(0x00ff88, 8, 80);
+        e1.position.set(10, 15, 10);
+        envScene.add(e1);
+        const e2 = new THREE.PointLight(0xffffff, 5, 80);
+        e2.position.set(-15, 5, -10);
+        envScene.add(e2);
+        const e3 = new THREE.PointLight(0x00cc55, 4, 80);
+        e3.position.set(0, -15, 5);
+        envScene.add(e3);
+
+        const envRT = pmrem.fromScene(envScene);
+        return envRT.texture;
+      }
+
+      const envTexture = buildEnvMap();
+      scene.environment = envTexture;
+
+      /* ── Cargar GLB ── */
+      function loadWithGLTF(buffer) {
+        const gltfLoader = new THREE.GLTFLoader();
+        const blob = new Blob([buffer], { type: 'model/gltf-binary' });
+        const url  = URL.createObjectURL(blob);
+        gltfLoader.load(url, function(gltf) {
+          const model = gltf.scene;
+
+          /* Centrar y escalar */
+          const box    = new THREE.Box3().setFromObject(model);
+          const center = box.getCenter(new THREE.Vector3());
+          const size   = box.getSize(new THREE.Vector3());
+          const maxDim = Math.max(size.x, size.y, size.z);
+          const scale  = 3.5 / maxDim;
+          model.position.sub(center.multiplyScalar(scale));
+          model.scale.setScalar(scale);
+
+          /* Respetar materiales del GLB — solo reforzar reflejos */
+          model.traverse(function(child) {
+            if (child.isMesh && child.material) {
+              const mats = Array.isArray(child.material) ? child.material : [child.material];
+              mats.forEach(function(mat) {
+                mat.envMap = envTexture;
+                mat.envMapIntensity = 2.0;
+                mat.needsUpdate = true;
+              });
+            }
+          });
+
+          scene.add(model);
+          URL.revokeObjectURL(url);
+
+          /* Animación */
+          let t = 0;
+          function animate() {
+            requestAnimationFrame(animate);
+            t += 0.012;
+            model.rotation.y = Math.sin(t * 0.5) * 0.6;
+            model.rotation.x = Math.sin(t * 0.3) * 0.1;
+            model.position.y = Math.sin(t * 0.7) * 0.1;
+            renderer.render(scene, camera);
+          }
+          animate();
+        });
+      }
+
+      /* Arrancar carga */
+      const s = document.createElement('script');
+      s.src = 'https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js';
+      s.onload = function() {
+        const loader2 = new THREE.FileLoader();
+        loader2.setResponseType('arraybuffer');
+        loader2.load('images/LOGO3D.glb', function(buffer) {
+          loadWithGLTF(buffer);
+        });
+      };
+      document.head.appendChild(s);
+    })();
+  </script>
+</body>
+</html>

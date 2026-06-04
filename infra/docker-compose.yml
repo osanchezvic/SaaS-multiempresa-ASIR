@@ -197,6 +197,8 @@ services:
       - infra_proxy_net
     environment:
       - API_TOKEN=${API_TOKEN}
+      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
+      - TELEGRAM_CHAT_ID=${TELEGRAM_CHAT_ID}
       - PROJECT_ROOT=/app
       - HOST_PROJECT_ROOT=${HOST_PROJECT_ROOT}
       - RESEND_API_KEY=${RESEND_API_KEY}
