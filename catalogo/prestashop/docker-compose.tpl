@@ -9,7 +9,7 @@ services:
       - DB_NAME={{DB_NAME}}
       - DB_USER={{DB_USER}}
       - DB_PASSWD={{DB_PASSWORD}}
-      - PS_DOMAIN=localhost:{{PUERTO}}
+      - PS_DOMAIN={{SERVICIO}}-{{EMPRESA}}.tensaas.es
       - PS_INSTALL_AUTO=1
       - PS_ERASE_DB=0
       - PS_ADMIN_EMAIL=admin@{{EMPRESA}}.com

@@ -13,17 +13,27 @@ $conn = mysqli_connect($db_host, $db_user, $db_pass, $db_name);
 mysqli_set_charset($conn, "utf8mb4");
 
 /* ── FUNCIONES DE SINCRONIZACIÓN ─────────────────────────── */
-function syncWithAuthelia($u, $p, $ea, $email = null) {
+function syncWithAuthelia($u, $p, $ea, $email = null, $empresa = null) {
     $api_token = getenv('API_TOKEN');
     if (!$api_token) return false;
-    
+
+    // Aislamiento por tenant: los clientes llevan el grupo de su empresa
+    // (group:<empresa>), que casa con las reglas access_control de Authelia.
+    // Los admins globales van a 'admins' y llegan a todo por la regla maestra.
+    if ($ea) {
+        $groups = ['admins', 'users'];
+    } else {
+        $groups = ['users'];
+        if ($empresa) $groups[] = strtolower($empresa);
+    }
+
     $url = 'http://infra_api:8000/auth/sync_user';
     $data = [
         'username'     => $u,
         'password'     => $p,
         'display_name' => $u,
         'email'        => $email ?: "{$u}@tensaas.es",
-        'groups'       => $ea ? ['admins', 'users'] : ['users']
+        'groups'       => $groups
     ];
     
     $ch = curl_init($url);
@@ -72,8 +82,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['nuevo_usuario'])) {
             mysqli_stmt_bind_param($st, 'sssii', $u, $hash, $em, $ei, $ea);
             if (mysqli_stmt_execute($st)) {
                 $flash = ['type' => 'success', 'msg' => "Usuario «{$u}» creado correctamente."];
+                // Nombre de la empresa para el grupo de aislamiento en Authelia
+                $empresa_grupo = null;
+                $stg = mysqli_prepare($conn, "SELECT nombre FROM empresas WHERE id=?");
+                mysqli_stmt_bind_param($stg, 'i', $ei);
+                mysqli_stmt_execute($stg);
+                if ($erow = mysqli_fetch_assoc(mysqli_stmt_get_result($stg))) {
+                    $empresa_grupo = $erow['nombre'];
+                }
                 // Sincronizar con Authelia vía API
-                syncWithAuthelia($u, $p, $ea, $em);
+                syncWithAuthelia($u, $p, $ea, $em, $empresa_grupo);
             } else {
                 $flash = ['type' => 'error', 'msg' => 'Error al crear el usuario: ' . mysqli_error($conn)];
             }

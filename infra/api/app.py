@@ -6,7 +6,10 @@ import logging
 import json
 import yaml
 import re
-import resend
+import asyncio
+import html
+import urllib.request
+import urllib.parse
 
 # Configurar logging
 logging.basicConfig(level=logging.INFO)
@@ -84,36 +87,66 @@ async def deploy(company: str, service: str, token: str = Header(...)):
         logger.error(f"Excepción durante el despliegue: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
+def _send_telegram(text: str):
+    """Envía un mensaje al chat de Telegram vía Bot API (bloqueante)."""
+    token = os.getenv("TELEGRAM_BOT_TOKEN")
+    chat_id = os.getenv("TELEGRAM_CHAT_ID")
+    if not token or not chat_id:
+        raise RuntimeError("TELEGRAM_BOT_TOKEN / TELEGRAM_CHAT_ID no configurados")
+
+    url = f"https://api.telegram.org/bot{token}/sendMessage"
+    payload = urllib.parse.urlencode({
+        "chat_id": chat_id,
+        "text": text,
+        "parse_mode": "HTML",
+        "disable_web_page_preview": "true",
+    }).encode()
+
+    req = urllib.request.Request(url, data=payload, method="POST")
+    with urllib.request.urlopen(req, timeout=10) as resp:
+        body = resp.read().decode()
+        if resp.status != 200:
+            raise RuntimeError(f"Telegram API {resp.status}: {body}")
+        return body
+
+
 @app.post("/contact")
 async def contact(request: Request):
     logger.info("Recibida petición en /contact")
     try:
         data = await request.json()
-    except Exception as e:
+    except Exception:
         raise HTTPException(status_code=400, detail="Invalid JSON body")
 
-    nombre = data.get("nombre")
-    email = data.get("email")
-    mensaje = data.get("mensaje")
+    nombre = (data.get("nombre") or "").strip()
+    email = (data.get("email") or "").strip()
+    mensaje = (data.get("mensaje") or "").strip()
+    empresa = (data.get("empresa") or "").strip()
+    telefono = (data.get("telefono") or "").strip()
+    plan = (data.get("plan") or "").strip()
 
     if not nombre or not email or not mensaje:
         raise HTTPException(status_code=400, detail="Missing required fields")
 
-    resend.api_key = os.getenv("RESEND_API_KEY")
-    
-    params = {
-        "from": os.getenv("RESEND_FROM_EMAIL"),
-        "to": [os.getenv("RESEND_TO_EMAIL")],
-        "subject": f"Nuevo mensaje de contacto: {nombre}",
-        "html": f"<p><strong>Nombre:</strong> {nombre}</p><p><strong>Email:</strong> {email}</p><p><strong>Mensaje:</strong><br>{mensaje}</p>"
-    }
-    
+    def e(v):
+        return html.escape(v) if v else "—"
+
+    text = (
+        "📬 <b>Nuevo contacto desde la web</b>\n\n"
+        f"👤 <b>Nombre:</b> {e(nombre)}\n"
+        f"🏢 <b>Empresa:</b> {e(empresa)}\n"
+        f"✉️ <b>Email:</b> {e(email)}\n"
+        f"📞 <b>Teléfono:</b> {e(telefono)}\n"
+        f"📦 <b>Plan:</b> {e(plan)}\n\n"
+        f"💬 <b>Mensaje:</b>\n{e(mensaje)}"
+    )
+
     try:
-        resend.Emails.send(params)
-        logger.info("Email enviado exitosamente vía Resend")
-    except Exception as e:
-        logger.error(f"Error enviando email: {str(e)}")
-        raise HTTPException(status_code=500, detail="Error enviando el correo")
+        await asyncio.to_thread(_send_telegram, text)
+        logger.info("Mensaje de contacto enviado a Telegram")
+    except Exception as ex:
+        logger.error(f"Error enviando a Telegram: {str(ex)}")
+        raise HTTPException(status_code=500, detail="Error enviando el mensaje")
 
     return {"status": "success", "message": "Mensaje recibido correctamente"}
 
