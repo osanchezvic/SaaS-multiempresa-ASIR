@@ -52,22 +52,20 @@ access_control:
       subject: "group:admins"
       policy: two_factor
 
-    # REGLAS PARA CLIENTES: 1FA Y SOLO SUS SITIOS
+    # REGLAS PARA CLIENTES: 1FA Y SOLO SUS SITIOS.
     - domain: "panel.tensaas.es"
       subject: "group:users"
       policy: one_factor
 
-    # Esquema real de dominios: <servicio>-<empresa>.tensaas.es (con guion).
-    # Se usa domain_regex porque el wildcard "*.empresa.tensaas.es" (separado
-    # por puntos) NUNCA casaba con "wordpress-panaderia.tensaas.es".
+    # Aislamiento por tenant, GENÉRICO y automático para toda empresa
+    # presente o futura. El dominio es <servicio>-<empresa>.tensaas.es; el
+    # grupo de captura nombrado (?P<Group>...) hace que Authelia exija que el
+    # usuario pertenezca al grupo llamado igual que la <empresa> capturada.
+    # Como el dashboard asigna group:<empresa> a cada cliente, un usuario solo
+    # puede abrir los servicios de SU empresa. No hay que añadir reglas al
+    # crear empresas nuevas.
     - domain_regex:
-        - "^([a-z0-9]+-)?panaderia\\.tensaas\\.es$"
-      subject: "group:users"
-      policy: one_factor
-
-    - domain_regex:
-        - "^([a-z0-9]+-)?btravel\\.tensaas\\.es$"
-      subject: "group:users"
+        - "^[a-z0-9]+-(?P<Group>[a-z0-9]+)\\.tensaas\\.es$"
       policy: one_factor
 
 totp:
