@@ -32,6 +32,14 @@ backups/
 infra/backups/
 data/
 
+# --- DOCS PRIVADOS ---
+docs/GUIA_DEFENSA.md
+docs/INFORME_ESTADO*
+docs/biografia.md
+docs/er-users-db.drawio
+docs/presentacion.html
+docs/diagramas/
+
 # --- OTROS ---
 # Python y Sistema
 __pycache__/
